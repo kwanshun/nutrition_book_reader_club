@@ -14,3 +14,21 @@ Web app目的：方便組長發放訊息、記錄組員每天的分享及飲食�
 7）更新重點活動內容，內容會顯示在APP上，成員亦會看到
 8）有一個版面給組長做setup，以便不同組員可加入不同的群組。
  
+
+Detail of 功能 1
+- "每天自動發放資料" current is stored in googlesheet: https://docs.google.com/spreadsheets/d/1flmyI35xXrh_GQftv5mDWj5OPNsEujlwy_l8oAY8N78/edit?usp=sharing and googledrive https://drive.google.com/drive/folders/1BBbEj6QGiXsfn2iioc5xM4cgGKv_qU-I?usp=sharing
+- the data can be moved to Supabase if necessary. 
+- the data supposed to be sent on 7am daily for 21 days. (this book reading club runs for 21 days)
+
+Detail of 功能 2
+- member can only input text message. 
+- input once daily. 
+
+Detail of 功能 3
+- content of the book is stored in folder "CKN book content". In the folder, there one 21 files. Each file for each day content. 
+- Each day quiz is generated based on the corresponding day file. For example, for Day 3 quiz, the quiz is generated based on "第3天：保持年輕的竅門.md" file. 
+- Similiar coding can be found from "Page 2" of this https://github.com/kwanshun/CKNbook. 
+
+Detail of 功能 4
+- the functional is reference from another app and the code is stored in "spatial-understanding_by Google AI Studio" folder. you can also refer to docs/food_image_recognition_guide.md file. 
+
