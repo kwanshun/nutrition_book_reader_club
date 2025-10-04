@@ -25,13 +25,33 @@ export default function FoodResultDisplay({
 
   const handleSave = async () => {
     setIsSaving(true);
-    // TODO: Save to database (food_logs table)
-    // For MVP, we'll just show success message
-    setTimeout(() => {
-      setIsSaving(false);
+    
+    try {
+      const response = await fetch('/api/food/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          detected_foods: editedFoods,
+          image_url: imageSrc,
+          user_input: null,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '儲存失敗');
+      }
+
       alert('食物記錄已儲存！');
       onReset();
-    }, 1000);
+    } catch (error) {
+      console.error('Error saving food log:', error);
+      alert(error instanceof Error ? error.message : '儲存失敗，請稍後再試');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
