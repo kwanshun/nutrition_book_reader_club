@@ -32,11 +32,8 @@ export default function TextShareCard({ share, showDate = true }: TextShareCardP
   };
 
   const getDisplayName = (share: TextShare) => {
-    // For now, we'll use a fallback since we can't join with auth.users
-    // In a real app, you'd either:
-    // 1. Store user names in a profiles table
-    // 2. Use a different approach to get user info
-    return share.user?.name || `用戶${share.user_id.slice(-4)}`;
+    // Use display_name from API response, fallback to user ID suffix
+    return share.display_name || `用戶${share.user_id.slice(-4)}`;
   };
 
   const getUserColor = (userId: string) => {
@@ -72,9 +69,14 @@ export default function TextShareCard({ share, showDate = true }: TextShareCardP
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-900">
-              {getDisplayName(share)}
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium text-gray-900">
+                {getDisplayName(share)}
+              </span>
+              <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                第{share.day_number}天
+              </span>
+            </div>
             {showDate && (
               <span className="text-xs text-gray-500">
                 {formatDate(share.created_at)}

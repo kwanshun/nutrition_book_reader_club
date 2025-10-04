@@ -61,7 +61,7 @@ export function useUserProgress() {
       // Fetch text shares
       const { data: shareData, error: shareError } = await supabase
         .from('text_shares')
-        .select('created_at')
+        .select('created_at, day_number')
         .eq('user_id', user.id);
 
       if (shareError) throw shareError;
@@ -94,9 +94,18 @@ export function useUserProgress() {
         activityMap.set(date, existing);
       });
 
-      // Process text shares
+      // Process text shares - map to lesson day numbers instead of calendar dates
       shareData?.forEach((item) => {
-        const date = new Date(item.created_at).toISOString().split('T')[0];
+        // For shares, use day_number to determine which calendar day to show the indicator
+        // This assumes the program starts on the 1st of the current month
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        
+        // Map lesson day_number to calendar date (e.g., Day 1 -> Oct 1, Day 3 -> Oct 3)
+        // Format date string manually to avoid timezone issues
+        const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(item.day_number).padStart(2, '0')}`;
+        
         const existing = activityMap.get(date) || {
           date,
           hasQuiz: false,
@@ -133,7 +142,7 @@ export function useUserProgress() {
 
       // Calculate stats
       const quizDays = new Set(quizData?.map(q => new Date(q.answered_at).toISOString().split('T')[0])).size;
-      const shareDays = new Set(shareData?.map(s => new Date(s.created_at).toISOString().split('T')[0])).size;
+      const shareDays = new Set(shareData?.map(s => s.day_number)).size; // Count unique day_numbers instead of dates
       const foodLogDays = new Set(foodData?.map(f => new Date(f.created_at).toISOString().split('T')[0])).size;
 
       setStats({

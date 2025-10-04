@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Selector Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #2563eb;
+            color: white;
+            padding: 16px;
+            border-radius: 8px 8px 0 0;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        select {
+            background-color: #1d4ed8;
+            color: white;
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.875rem;
+        }
+        .status {
+            color: #dbeafe;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+        .form-container {
+            background-color: white;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .form-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+        .char-count {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        button {
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .test-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .test-fail {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1 id="header-title">第 1 天 - 分享心得</h1>
+            <select id="day-selector">
+                <option value="1">第 1 天</option>
+                <option value="2">第 2 天</option>
+                <option value="3">第 3 天</option>
+                <option value="4">第 4 天</option>
+                <option value="5">第 5 天</option>
+                <option value="6">第 6 天</option>
+                <option value="7">第 7 天</option>
+                <option value="8">第 8 天</option>
+                <option value="9">第 9 天</option>
+                <option value="10">第 10 天</option>
+                <option value="11">第 11 天</option>
+                <option value="12">第 12 天</option>
+                <option value="13">第 13 天</option>
+                <option value="14">第 14 天</option>
+                <option value="15">第 15 天</option>
+                <option value="16">第 16 天</option>
+                <option value="17">第 17 天</option>
+                <option value="18">第 18 天</option>
+                <option value="19">第 19 天</option>
+                <option value="20">第 20 天</option>
+                <option value="21">第 21 天</option>
+            </select>
+        </div>
+        <div class="status" id="status-text">分享你的學習心得</div>
+    </div>
+
+    <div class="form-container">
+        <div class="form-title" id="form-title">寫下你的心得</div>
+        <textarea id="share-content" rows="6" placeholder="今天學到了什麼？有什麼感想？想和大家分享什麼？"></textarea>
+        <div class="char-count" id="char-count">0/500</div>
+        <button id="submit-btn" onclick="submitShare()">分享心得</button>
+    </div>
+
+    <div class="test-results">
+        <h3>Date Selector Test Results</h3>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Mock data to simulate shares for different days
+        const mockShares = {
+            1: { hasShared: false, content: null },
+            2: { hasShared: true, content: "今天學到了很多關於營養的知識，特別是關於蛋白質的重要性。" },
+            3: { hasShared: false, content: null },
+            4: { hasShared: true, content: "很棒的學習體驗，對健康飲食有了新的認識。" },
+            5: { hasShared: false, content: null }
+        };
+
+        let currentDay = 1;
+        const daySelector = document.getElementById('day-selector');
+        const headerTitle = document.getElementById('header-title');
+        const statusText = document.getElementById('status-text');
+        const formTitle = document.getElementById('form-title');
+        const shareContent = document.getElementById('share-content');
+        const charCount = document.getElementById('char-count');
+        const submitBtn = document.getElementById('submit-btn');
+        const testResults = document.getElementById('test-results');
+
+        // Initialize
+        updateUI();
+
+        // Event listeners
+        daySelector.addEventListener('change', (e) => {
+            currentDay = parseInt(e.target.value);
+            updateUI();
+            runTests();
+        });
+
+        shareContent.addEventListener('input', (e) => {
+            const count = e.target.value.length;
+            charCount.textContent = `${count}/500`;
+            
+            if (count > 450) {
+                charCount.style.color = '#ea580c';
+            } else {
+                charCount.style.color = '#6b7280';
+            }
+        });
+
+        function updateUI() {
+            const share = mockShares[currentDay] || { hasShared: false, content: null };
+            
+            // Update header
+            headerTitle.textContent = `第 ${currentDay} 天 - 分享心得`;
+            
+            // Update status
+            if (share.hasShared) {
+                statusText.textContent = `✅ 第${currentDay}天已分享`;
+                statusText.style.color = '#dbeafe';
+            } else {
+                statusText.textContent = '分享你的學習心得';
+                statusText.style.color = '#dbeafe';
+            }
+            
+            // Update form
+            if (share.hasShared) {
+                formTitle.textContent = `第${currentDay}天的心得`;
+                shareContent.value = share.content || '';
+                shareContent.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.textContent = '已分享';
+            } else {
+                formTitle.textContent = '寫下你的心得';
+                shareContent.value = '';
+                shareContent.disabled = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '分享心得';
+            }
+            
+            // Update character count
+            charCount.textContent = `${shareContent.value.length}/500`;
+        }
+
+        function submitShare() {
+            const content = shareContent.value.trim();
+            if (!content) {
+                alert('請輸入分享內容');
+                return;
+            }
+            
+            // Simulate API call
+            mockShares[currentDay] = {
+                hasShared: true,
+                content: content
+            };
+            
+            updateUI();
+            runTests();
+            
+            alert(`成功分享第${currentDay}天的心得！`);
+        }
+
+        function runTests() {
+            const results = [];
+            
+            // Test 1: Day selector updates header
+            const expectedHeader = `第 ${currentDay} 天 - 分享心得`;
+            const actualHeader = headerTitle.textContent;
+            results.push({
+                name: 'Day selector updates header',
+                pass: actualHeader === expectedHeader,
+                expected: expectedHeader,
+                actual: actualHeader
+            });
+            
+            // Test 2: Status updates based on day
+            const share = mockShares[currentDay] || { hasShared: false };
+            const expectedStatus = share.hasShared ? `✅ 第${currentDay}天已分享` : '分享你的學習心得';
+            const actualStatus = statusText.textContent;
+            results.push({
+                name: 'Status updates based on day',
+                pass: actualStatus === expectedStatus,
+                expected: expectedStatus,
+                actual: actualStatus
+            });
+            
+            // Test 3: Form enables/disables based on day
+            const expectedDisabled = share.hasShared;
+            const actualDisabled = shareContent.disabled;
+            results.push({
+                name: 'Form enables/disables based on day',
+                pass: actualDisabled === expectedDisabled,
+                expected: expectedDisabled,
+                actual: actualDisabled
+            });
+            
+            // Test 4: Button text updates based on day
+            const expectedButtonText = share.hasShared ? '已分享' : '分享心得';
+            const actualButtonText = submitBtn.textContent;
+            results.push({
+                name: 'Button text updates based on day',
+                pass: actualButtonText === expectedButtonText,
+                expected: expectedButtonText,
+                actual: actualButtonText
+            });
+            
+            // Display results
+            testResults.innerHTML = results.map(result => `
+                <div class="test-item ${result.pass ? 'test-pass' : 'test-fail'}">
+                    <strong>${result.name}:</strong> ${result.pass ? 'PASS' : 'FAIL'}<br>
+                    Expected: ${result.expected}<br>
+                    Actual: ${result.actual}
+                </div>
+            `).join('');
+        }
+
+        // Run initial tests
+        runTests();
+    </script>
+</body>
+</html>

@@ -58,10 +58,12 @@ export interface TextShare {
   user_id: string;
   group_id: string;
   content: string;
+  day_number: number;
   created_at: string;
   user?: {
     name: string;
   };
+  display_name?: string;
 }
 
 export interface FoodLog {

@@ -40,7 +40,10 @@ export default function MenuPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">設定</h2>
             <div className="space-y-4">
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <button 
+                onClick={() => router.push('/profile')}
+                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">👤</span>
                   <div>

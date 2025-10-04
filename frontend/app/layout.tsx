@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "營養書讀書會",
+  title: "營養學習平台",
   description: "21天營養書閱讀計劃",
 };
 

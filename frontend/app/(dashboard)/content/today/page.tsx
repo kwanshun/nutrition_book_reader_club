@@ -10,9 +10,20 @@ export default function TodayContentPage() {
   const { content, loading, error } = useContent(currentDay);
 
   useEffect(() => {
-    // For demo purposes, we'll start with day 1
-    // In production, this would be calculated based on the program start date
-    setCurrentDay(1);
+    // Calculate current day based on first day of current month as start date
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    
+    // Calculate days since first day of month
+    const daysSinceStart = Math.floor((today.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Current day is days since start + 1 (1-based indexing)
+    // Cap at 21 days maximum
+    const calculatedDay = Math.min(daysSinceStart + 1, 21);
+    
+    setCurrentDay(calculatedDay);
   }, []);
 
   const handleDayChange = (day: number) => {

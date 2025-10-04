@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, group_id } = await request.json();
+    const { content, group_id, day_number } = await request.json();
 
     if (!content || !content.trim()) {
       return NextResponse.json(
@@ -23,20 +23,25 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    
+    if (!day_number || day_number < 1 || day_number > 21) {
+      return NextResponse.json(
+        { error: 'Invalid day number' },
+        { status: 400 }
+      );
+    }
 
-    // Check if user has already shared today
-    const today = new Date().toISOString().split('T')[0];
+    // Check if user has already shared for this day
     const { data: existingShare } = await supabase
       .from('text_shares')
       .select('id')
       .eq('user_id', user.id)
-      .gte('created_at', `${today}T00:00:00`)
-      .lt('created_at', `${today}T23:59:59`)
+      .eq('day_number', day_number)
       .limit(1);
 
     if (existingShare && existingShare.length > 0) {
       return NextResponse.json(
-        { error: 'You have already shared today' },
+        { error: `You have already shared for day ${day_number}` },
         { status: 409 }
       );
     }
@@ -47,7 +52,8 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         group_id: group_id || null, // Allow NULL for testing without groups
-        content: content.trim()
+        content: content.trim(),
+        day_number: day_number
       })
       .select('*')
       .single();
@@ -86,11 +92,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get('group_id');
+    const dayNumber = searchParams.get('day_number');
     const limit = parseInt(searchParams.get('limit') || '20');
 
     let query = supabase
       .from('text_shares')
       .select('*')
+      .eq('user_id', user.id) // Only show current user's shares
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -99,7 +107,12 @@ export async function GET(request: NextRequest) {
       query = query.eq('group_id', groupId);
     }
 
-    const { data, error } = await query;
+    // Filter by day number if provided
+    if (dayNumber) {
+      query = query.eq('day_number', parseInt(dayNumber));
+    }
+
+    const { data: shares, error } = await query;
 
     if (error) {
       console.error('Error fetching shares:', error);
@@ -109,7 +122,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(data);
+    // Fetch display names for all users in the shares
+    const userIds = [...new Set(shares?.map(share => share.user_id) || [])];
+    let displayNames: { [userId: string]: string } = {};
+
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('user_id, display_name')
+        .in('user_id', userIds);
+
+      if (profiles) {
+        displayNames = profiles.reduce((acc, profile) => {
+          acc[profile.user_id] = profile.display_name;
+          return acc;
+        }, {} as { [userId: string]: string });
+      }
+    }
+
+    // Add display names to shares
+    const sharesWithDisplayNames = shares?.map(share => ({
+      ...share,
+      display_name: displayNames[share.user_id] || `用戶${share.user_id.slice(-4)}`
+    })) || [];
+
+    return NextResponse.json(sharesWithDisplayNames);
   } catch (error) {
     console.error('Error in GET /api/shares:', error);
     return NextResponse.json(

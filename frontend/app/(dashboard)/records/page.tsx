@@ -5,17 +5,15 @@ import DashboardHeader from '@/components/layout/DashboardHeader';
 import { useUserProgress } from '@/lib/hooks/useUserProgress';
 import { createClient } from '@/lib/supabase/client';
 
-interface DayDetail {
-  date: string;
-  foodLogs: any[];
-  textShares: any[];
-}
 
 export default function RecordsPage() {
   const { activities, stats, loading, error } = useUserProgress();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<DayDetail | null>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  // New state for "All Shares" modal
+  const [showAllSharesModal, setShowAllSharesModal] = useState(false);
+  const [allShares, setAllShares] = useState<any[]>([]);
+  const [loadingAllShares, setLoadingAllShares] = useState(false);
 
   // Get calendar data for current month
   const year = currentDate.getFullYear();
@@ -52,50 +50,32 @@ export default function RecordsPage() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  // Fetch day details
-  const fetchDayDetails = async (day: number) => {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    setLoadingDetail(true);
-    
+
+  const fetchAllShares = async () => {
+    setLoadingAllShares(true);
+    setShowAllSharesModal(true);
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) return;
 
-      // Fetch food logs for this day
-      const { data: foodLogs } = await supabase
-        .from('food_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('created_at', `${dateStr}T00:00:00`)
-        .lt('created_at', `${dateStr}T23:59:59`)
-        .order('created_at', { ascending: false });
-
-      // Fetch text shares for this day
-      const { data: textShares } = await supabase
+      const { data: textShares, error } = await supabase
         .from('text_shares')
         .select('*')
         .eq('user_id', user.id)
-        .gte('created_at', `${dateStr}T00:00:00`)
-        .lt('created_at', `${dateStr}T23:59:59`)
         .order('created_at', { ascending: false });
 
-      setSelectedDay({
-        date: dateStr,
-        foodLogs: foodLogs || [],
-        textShares: textShares || [],
-      });
+      if (error) throw error;
+
+      setAllShares(textShares || []);
     } catch (err) {
-      console.error('Error fetching day details:', err);
+      console.error('Error fetching all shares:', err);
+      // You might want to show an error in the modal
     } finally {
-      setLoadingDetail(false);
+      setLoadingAllShares(false);
     }
   };
 
-  const closeDayDetail = () => {
-    setSelectedDay(null);
-  };
 
   if (loading) {
     return (
@@ -170,11 +150,9 @@ export default function RecordsPage() {
               const hasAnyActivity = activity && (activity.hasQuiz || activity.hasShare || activity.hasFoodLog);
 
               return (
-                <button
+                <div
                   key={day}
-                  onClick={() => hasAnyActivity && fetchDayDetails(day)}
-                  className={`aspect-square relative ${hasAnyActivity ? 'cursor-pointer hover:bg-gray-50' : ''}`}
-                  disabled={!hasAnyActivity}
+                  className="aspect-square relative"
                 >
                   {/* Day number */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -200,7 +178,7 @@ export default function RecordsPage() {
                       )}
                     </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
@@ -210,14 +188,17 @@ export default function RecordsPage() {
         <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="space-y-3">
             {/* Share Stats (Empty circle) */}
-            <div className="flex items-center space-x-3">
+            <button
+              onClick={fetchAllShares}
+              className="flex items-center space-x-3 w-full text-left hover:bg-gray-50 p-2 -m-2 rounded-lg transition-colors"
+            >
               <div className="w-8 h-8 border-2 border-gray-800 rounded-full flex items-center justify-center flex-shrink-0"></div>
               <span className="text-gray-700">學習打咭</span>
               <span className="text-gray-900 font-medium ml-auto">{stats.shareDays} 天</span>
-            </div>
+            </button>
 
             {/* Food Log Stats (Filled gray circle) */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 p-2 -m-2">
               <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
               <span className="text-gray-700">記錄食物</span>
               <span className="text-gray-900 font-medium ml-auto">
@@ -238,20 +219,18 @@ export default function RecordsPage() {
           </div>
         </div>
 
-        {/* Day Detail Modal */}
-        {selectedDay && (
+
+        {/* All Shares Modal */}
+        {showAllSharesModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
               {/* Modal Header */}
               <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
                 <h2 className="text-lg font-bold">
-                  {new Date(selectedDay.date).toLocaleDateString('zh-TW', { 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })} 記錄
+                  所有學習打咭
                 </h2>
                 <button
-                  onClick={closeDayDetail}
+                  onClick={() => setShowAllSharesModal(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
@@ -260,81 +239,28 @@ export default function RecordsPage() {
 
               {/* Modal Content */}
               <div className="p-4">
-                {loadingDetail ? (
+                {loadingAllShares ? (
                   <div className="flex justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
                 ) : (
                   <>
-                    {/* Text Shares Section */}
-                    {selectedDay.textShares.length > 0 && (
-                      <div className="mb-6">
-                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                          <div className="w-6 h-6 border-2 border-gray-800 rounded-full mr-2"></div>
-                          學習打咭 ({selectedDay.textShares.length})
-                        </h3>
-                        <div className="space-y-3">
-                          {selectedDay.textShares.map((share: any) => (
-                            <div key={share.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              <p className="text-gray-700 whitespace-pre-wrap">{share.content}</p>
-                              <p className="text-xs text-gray-500 mt-2">
-                                {new Date(share.created_at).toLocaleTimeString('zh-TW', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                    {allShares.length > 0 ? (
+                      <div className="space-y-3">
+                        {allShares.map((share: any) => (
+                          <div key={share.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                             <div className="flex justify-between items-baseline mb-2">
+                               <p className="font-semibold text-sm">第 {share.day_number} 天</p>
+                               <p className="text-xs text-gray-500">
+                                {new Date(share.created_at).toLocaleDateString('zh-TW')}
                               </p>
-                            </div>
-                          ))}
-                        </div>
+                             </div>
+                            <p className="text-gray-700 whitespace-pre-wrap">{share.content}</p>
+                          </div>
+                        ))}
                       </div>
-                    )}
-
-                    {/* Food Logs Section */}
-                    {selectedDay.foodLogs.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                          <div className="w-6 h-6 bg-gray-300 rounded-full mr-2"></div>
-                          記錄食物 ({selectedDay.foodLogs.length})
-                        </h3>
-                        <div className="space-y-4">
-                          {selectedDay.foodLogs.map((log: any) => (
-                            <div key={log.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              {/* Food Image */}
-                              {log.image_url && (
-                                <img
-                                  src={log.image_url}
-                                  alt="Food"
-                                  className="w-full h-32 object-cover rounded-lg mb-3"
-                                />
-                              )}
-                              
-                              {/* Food Items */}
-                              {log.detected_foods && Array.isArray(log.detected_foods) && (
-                                <div className="space-y-2">
-                                  {log.detected_foods.map((food: any, idx: number) => (
-                                    <div key={idx} className="text-sm">
-                                      <span className="font-medium text-gray-900">{food.name}</span>
-                                      <span className="text-gray-600"> - {food.portion}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              
-                              <p className="text-xs text-gray-500 mt-2">
-                                {new Date(log.created_at).toLocaleTimeString('zh-TW', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* No data message */}
-                    {selectedDay.textShares.length === 0 && selectedDay.foodLogs.length === 0 && (
-                      <p className="text-gray-500 text-center py-8">此日期沒有記錄</p>
+                    ) : (
+                      <p className="text-gray-500 text-center py-8">沒有學習打咭記錄</p>
                     )}
                   </>
                 )}

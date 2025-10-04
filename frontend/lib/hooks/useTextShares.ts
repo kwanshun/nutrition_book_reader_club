@@ -7,8 +7,9 @@ interface UseTextSharesReturn {
   loading: boolean;
   error: string | null;
   hasSharedToday: boolean;
-  createShare: (content: string, groupId?: string) => Promise<boolean>;
-  refreshShares: () => Promise<void>;
+  hasSharedForDay: (day: number) => boolean;
+  createShare: (content: string, dayNumber: number, groupId?: string) => Promise<boolean>;
+  refreshShares: (selectedDay?: number) => Promise<void>;
 }
 
 export function useTextShares(userId?: string, groupId?: string): UseTextSharesReturn {
@@ -44,8 +45,13 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
     }
   };
 
+  // Check if user has shared for a specific day
+  const hasSharedForDay = (day: number): boolean => {
+    return shares.some(share => share.day_number === day);
+  };
+
   // Fetch shares
-  const fetchShares = async () => {
+  const fetchShares = async (selectedDay?: number) => {
     if (!userId) return;
 
     setLoading(true);
@@ -56,6 +62,9 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
       const params = new URLSearchParams();
       if (groupId) {
         params.append('group_id', groupId);
+      }
+      if (selectedDay) {
+        params.append('day_number', selectedDay.toString());
       }
       params.append('limit', '20');
 
@@ -76,7 +85,7 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
   };
 
   // Create a new share
-  const createShare = async (content: string, targetGroupId?: string): Promise<boolean> => {
+  const createShare = async (content: string, dayNumber: number, targetGroupId?: string): Promise<boolean> => {
     if (!userId) return false;
 
     try {
@@ -91,6 +100,7 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
         },
         body: JSON.stringify({
           content: content.trim(),
+          day_number: dayNumber,
           group_id: targetGroupId || groupId || userId
         })
       });
@@ -116,8 +126,8 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
   };
 
   // Refresh shares
-  const refreshShares = async () => {
-    await fetchShares();
+  const refreshShares = async (selectedDay?: number) => {
+    await fetchShares(selectedDay);
     await checkTodayShare();
   };
 
@@ -134,6 +144,7 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
     loading,
     error,
     hasSharedToday,
+    hasSharedForDay,
     createShare,
     refreshShares
   };

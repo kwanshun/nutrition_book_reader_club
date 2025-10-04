@@ -14,24 +14,29 @@ export default function ChatMessage({ message, isOwnMessage }: ChatMessageProps)
   const supabase = createClient();
 
   useEffect(() => {
-    // Fetch user name from user_id
+    // Fetch user display name from user_profiles
     const fetchUserName = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('name')
-        .eq('id', message.user_id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('display_name')
+          .eq('user_id', message.user_id)
+          .single();
 
-      if (error) {
+        if (error || !data) {
+          // Fallback to displaying user ID suffix
+          setUserName(`用戶${message.user_id.slice(-4)}`);
+        } else {
+          setUserName(data.display_name);
+        }
+      } catch (err) {
         // Fallback to displaying user ID suffix
         setUserName(`用戶${message.user_id.slice(-4)}`);
-      } else {
-        setUserName(data?.name || `用戶${message.user_id.slice(-4)}`);
       }
     };
 
     fetchUserName();
-  }, [message.user_id]);
+  }, [message.user_id, supabase]);
 
   return (
     <div className={`mb-4 flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>

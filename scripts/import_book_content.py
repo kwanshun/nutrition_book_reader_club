@@ -13,6 +13,7 @@ Time: ~3 minutes to run
 """
 
 import os
+import re
 from pathlib import Path
 from supabase import create_client, Client
 from dotenv import load_dotenv
@@ -48,6 +49,17 @@ def extract_title(content: str) -> str:
     return "未命名"  # Fallback if no title found
 
 
+def extract_day_number(filename: str) -> int:
+    """
+    Extract day number from filename like '第10天：降低血液膽固醇.md'
+    Returns the lesson number from the filename
+    """
+    match = re.search(r'第(\d+)天', filename)
+    if match:
+        return int(match.group(1))
+    return 1  # Fallback if no number found
+
+
 def import_all_content():
     """Import all 21 markdown files to Supabase"""
     
@@ -65,18 +77,30 @@ def import_all_content():
     
     success_count = 0
     
-    for i, filepath in enumerate(files, start=1):
+    # First, clear existing content
+    print("🗑️  Clearing existing daily_content...")
+    try:
+        # Delete all records from daily_content table
+        supabase.table('daily_content').delete().gte('id', '00000000-0000-0000-0000-000000000000').execute()
+        print("✓ Existing content cleared")
+    except Exception as e:
+        print(f"⚠️  Warning: Could not clear existing content - {e}")
+    
+    print()
+    
+    for filepath in files:
         try:
             # Read file content
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # Extract title
+            # Extract title and day number
             title = extract_title(content)
+            day_number = extract_day_number(filepath.name)
             
             # Prepare data for Supabase
             data = {
-                "day_number": i,
+                "day_number": day_number,
                 "title": title,
                 "content": content
             }
@@ -84,11 +108,11 @@ def import_all_content():
             # Insert/Update in Supabase (upsert = insert or update if exists)
             result = supabase.table('daily_content').upsert(data).execute()
             
-            print(f"✓ Day {i:2d}: {title}")
+            print(f"✓ Day {day_number:2d}: {title}")
             success_count += 1
             
         except Exception as e:
-            print(f"✗ Day {i:2d}: Failed - {e}")
+            print(f"✗ {filepath.name}: Failed - {e}")
     
     print(f"\n{'='*50}")
     print(f"✅ Successfully imported {success_count}/{len(files)} files")

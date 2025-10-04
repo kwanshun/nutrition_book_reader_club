@@ -14,7 +14,7 @@ export default function HomePage() {
 
   const sampleNews = [
     {
-      title: '歡迎參加第21期營養書讀書會',
+      title: '歡迎參加第21期學習計劃',
       description: '讓我們一起開始21天的營養學習之旅',
     },
     {
