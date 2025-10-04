@@ -31,6 +31,14 @@ export default function TextShareCard({ share, showDate = true }: TextShareCardP
     return (name || '用戶').charAt(0).toUpperCase();
   };
 
+  const getDisplayName = (share: TextShare) => {
+    // For now, we'll use a fallback since we can't join with auth.users
+    // In a real app, you'd either:
+    // 1. Store user names in a profiles table
+    // 2. Use a different approach to get user info
+    return share.user?.name || `用戶${share.user_id.slice(-4)}`;
+  };
+
   const getUserColor = (userId: string) => {
     // Generate a consistent color based on user ID
     const colors = [
@@ -58,14 +66,14 @@ export default function TextShareCard({ share, showDate = true }: TextShareCardP
       <div className="flex items-start space-x-3">
         {/* User Avatar */}
         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${getUserColor(share.user_id)}`}>
-          {getUserInitial(share.user?.name)}
+          {getUserInitial(getDisplayName(share))}
         </div>
         
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-900">
-              {share.user?.name || '匿名用戶'}
+              {getDisplayName(share)}
             </span>
             {showDate && (
               <span className="text-xs text-gray-500">

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -49,10 +49,7 @@ export async function POST(request: NextRequest) {
         group_id: group_id || user.id, // Fallback to user ID for demo
         content: content.trim()
       })
-      .select(`
-        *,
-        user:auth.users(name)
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -75,7 +72,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -93,10 +90,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('text_shares')
-      .select(`
-        *,
-        user:auth.users(name)
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
 

@@ -52,26 +52,20 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
     setError(null);
 
     try {
-      let query = supabase
-        .from('text_shares')
-        .select(`
-          *,
-          user:auth.users(name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      // Filter by group if provided
+      // Use API route instead of direct Supabase client
+      const params = new URLSearchParams();
       if (groupId) {
-        query = query.eq('group_id', groupId);
+        params.append('group_id', groupId);
+      }
+      params.append('limit', '20');
+
+      const response = await fetch(`/api/shares?${params}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch shares');
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        throw error;
-      }
-
+      const data = await response.json();
       setShares(data || []);
     } catch (error) {
       console.error('Error fetching shares:', error);
@@ -89,19 +83,24 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from('text_shares')
-        .insert({
-          user_id: userId,
-          group_id: targetGroupId || groupId || userId, // Fallback to user ID for demo
-          content: content.trim()
+      // Use API route instead of direct Supabase client
+      const response = await fetch('/api/shares', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: content.trim(),
+          group_id: targetGroupId || groupId || userId
         })
-        .select()
-        .single();
+      });
 
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create share');
       }
+
+      const data = await response.json();
 
       // Add to local state
       setShares(prev => [data, ...prev]);
