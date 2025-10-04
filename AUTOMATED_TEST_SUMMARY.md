@@ -183,6 +183,16 @@ GET /records 404 in 4356ms
 - Route exists but feature not implemented
 - Expected placeholder or "Coming soon" message
 
+### 21-Day Progress Dashboard (`/records`)
+- Route accessed but returns 404
+- Feature mentioned in plan (Function 5: Progress Dashboard)
+- Should show:
+  - Quiz scores over time
+  - Nutrition balance charts
+  - Sharing frequency
+  - Group participation rate
+- **Status:** Planned but not yet implemented
+
 ### Food Photo Upload
 - Feature not yet implemented
 - Should show placeholder
@@ -234,8 +244,9 @@ GET /records 404 in 4356ms
 - ⏳ Group Chat: 0%
 - ⏳ Food Upload: 0%
 - ⏳ Announcements: 0%
+- ⏳ Progress Dashboard (/records): 0%
 
-**MVP Features:** 4/7 (57%)  
+**MVP Features:** 4/8 (50%)  
 **Core User Flow:** ✅ Working End-to-End
 
 **Ready for:**
