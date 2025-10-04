@@ -8,7 +8,8 @@
 
 ✅ **Phase 0 Complete** - Database ready with all content and quizzes  
 ✅ **Phase 1 In Progress** - Next.js frontend with core features  
-🚀 **Next**: Complete remaining features (text sharing, food upload, chat)
+✅ **Latest**: Group Chat with Real-time messaging implemented  
+🚀 **Next**: Test chat feature and implement announcements
 
 ---
 
@@ -23,6 +24,10 @@
 - ✅ **NEW**: Authentication system (login/register/logout)
 - ✅ **NEW**: Daily content display with navigation
 - ✅ **NEW**: Interactive quiz system with scoring
+- ✅ **NEW**: Text sharing feature (daily learning reflections)
+- ✅ **NEW**: Food photo upload with AI recognition (Gemini Vision)
+- ✅ **NEW**: 21-day progress dashboard with activity tracking
+- ✅ **NEW**: Group chat with real-time messaging (Supabase Realtime)
 - ✅ **NEW**: Mobile-responsive dashboard
 - ✅ **NEW**: Chinese language interface
 
@@ -82,8 +87,11 @@ All credentials are in `.env` file:
 |------|---------|
 | `PROGRESS.md` | Detailed progress report |
 | `MVP.md` | 3-week MVP plan |
+| `docs/group_chat_guide.md` | Chat feature setup and usage |
+| `docs/food_image_recognition_guide.md` | Food recognition setup |
 | `background_info.txt` | Original requirements (Chinese) |
 | `scripts/verify_data.py` | Check database status |
+| `scripts/setup_test_group.sql` | Create test group for chat |
 | `.env` | API credentials (DO NOT COMMIT) |
 
 ---
@@ -148,6 +156,12 @@ Check that `.env` exists in project root with your credentials
 - **"Invalid login credentials"**: Check email/password spelling
 - **Registration fails**: Check if email already exists in Supabase dashboard
 - **Callback route 404**: Ensure `/app/auth/callback/route.ts` exists
+
+### Chat issues
+- **"尚未加入群組"**: Run `scripts/setup_test_group.sql` in Supabase SQL Editor
+- **Messages not real-time**: Enable Realtime for `chat_messages` table in Supabase Dashboard → Database → Replication
+- **Cannot send messages**: Verify user is in `group_members` table
+- **See detailed guide**: `docs/group_chat_guide.md`
 
 ---
 
