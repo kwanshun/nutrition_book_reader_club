@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { FoodItem } from '@/app/(dashboard)/food/page';
 
 interface FoodUploadFormProps {
@@ -11,11 +11,13 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('File input triggered');
     const file = e.target.files?.[0];
+    console.log('Selected file:', file);
+    
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -29,10 +31,16 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
         return;
       }
 
+      console.log('Reading file...');
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('File loaded successfully');
         setImageSrc(event.target?.result as string);
         setError(null);
+      };
+      reader.onerror = (error) => {
+        console.error('FileReader error:', error);
+        setError('讀取檔案失敗');
       };
       reader.readAsDataURL(file);
     }
@@ -95,50 +103,40 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
     }
   };
 
-  const handleCameraClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   const handleRemoveImage = () => {
     setImageSrc(null);
     setError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   return (
     <div>
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleImageUpload}
-        className="hidden"
-      />
-
       {/* Image Preview or Upload Button */}
       {!imageSrc ? (
         <div className="space-y-3">
-          <button
-            onClick={handleCameraClick}
-            className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-          >
+          {/* Camera Capture */}
+          <label className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
             <span className="text-2xl">📷</span>
             <span>拍攝食物照片</span>
-          </button>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
 
-          <button
-            onClick={handleCameraClick}
-            className="w-full bg-gray-100 text-gray-700 py-4 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
-          >
+          {/* Gallery Selection */}
+          <label className="w-full bg-gray-100 text-gray-700 py-4 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
             <span className="text-2xl">🖼️</span>
             <span>從相簿選擇</span>
-          </button>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
         </div>
       ) : (
         <div>
