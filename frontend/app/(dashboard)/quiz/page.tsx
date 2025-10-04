@@ -139,6 +139,29 @@ export default function QuizPage() {
 
   const currentQ = questions[currentQuestion];
 
+  // Safety check: if currentQ is undefined, reset to first question
+  if (!currentQ && currentQuestion !== 0) {
+    setCurrentQuestion(0);
+    return null;
+  }
+
+  // If still no question, show error
+  if (!currentQ) {
+    return (
+      <div>
+        <DashboardHeader period={21} />
+        <main className="max-w-md mx-auto px-4 py-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+            <p className="text-yellow-800">無法載入測驗題目</p>
+            <Link href="/content/today" className="mt-4 text-blue-600 hover:text-blue-500 block">
+              返回內容頁面
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div>
       <DashboardHeader period={21} />

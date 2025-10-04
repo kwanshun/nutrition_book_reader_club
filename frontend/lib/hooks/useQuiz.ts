@@ -31,6 +31,12 @@ export const useQuiz = (dayNumber?: number) => {
             data.questions = JSON.parse(data.questions);
           }
           
+          // Handle nested questions structure: {questions: {questions: [...]}}
+          // This happens when the quiz generator stores questions in a nested format
+          if (data && data.questions && typeof data.questions === 'object' && 'questions' in data.questions) {
+            data.questions = data.questions.questions;
+          }
+          
           setQuiz(data);
         } else {
           // Fetch all quizzes
