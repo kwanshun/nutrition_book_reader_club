@@ -1,0 +1,33 @@
+# Vercel Ignore File
+# Files and folders to exclude from deployment
+
+# Environment files (sensitive data)
+.env
+.env.local
+.env*.local
+
+# Development files
+node_modules
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+
+# Debug
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build cache
+.next
+
