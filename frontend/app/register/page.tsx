@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('TEST001'); // Default for testing
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -51,6 +52,28 @@ export default function RegisterPage() {
     } else {
       // Success - check if user was created
       if (data?.user) {
+        // Try to join group with invite code
+        if (inviteCode.trim()) {
+          try {
+            const joinResponse = await fetch('/api/groups/join', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                invite_code: inviteCode.trim(),
+                user_id: data.user.id 
+              }),
+            });
+            
+            if (!joinResponse.ok) {
+              console.warn('Failed to join group with invite code:', inviteCode);
+              // Don't show error to user - they can join later
+            }
+          } catch (joinError) {
+            console.warn('Error joining group:', joinError);
+            // Don't show error to user - they can join later
+          }
+        }
+        
         setSuccess(true);
         setTimeout(() => {
           router.push('/login');
@@ -174,6 +197,27 @@ export default function RegisterPage() {
                   placeholder="請再次輸入密碼"
                 />
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700">
+                邀請碼
+              </label>
+              <div className="mt-1">
+                <input
+                  id="inviteCode"
+                  name="inviteCode"
+                  type="text"
+                  required
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="請輸入群組邀請碼"
+                />
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                測試階段請使用：TEST001
+              </p>
             </div>
 
             {error && (

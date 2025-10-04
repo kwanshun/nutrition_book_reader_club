@@ -36,26 +36,53 @@ export default function ChatPage() {
 
         setCurrentUserId(user.id);
 
-        // Get user's first group (for MVP, assume one group per user)
-        const { data: membership, error: memberError } = await supabase
+        // Get user's first group membership
+        console.log('Fetching group membership for user:', user.id);
+        const { data: memberships, error: memberError } = await supabase
           .from('group_members')
-          .select('group_id, groups(id, name)')
+          .select('group_id')
           .eq('user_id', user.id)
-          .limit(1)
-          .single();
+          .limit(1);
+
+        console.log('Group membership query result:', { memberships, memberError });
 
         if (memberError) {
-          console.error('Error getting group:', memberError);
+          console.error('Error getting group membership:', memberError);
           setLoadingUser(false);
           return;
         }
 
-        if (membership && membership.groups) {
-          const group = membership.groups as { id: string; name: string };
+        if (!memberships || memberships.length === 0) {
+          console.log('User is not a member of any group. User ID:', user.id);
+          setLoadingUser(false);
+          return;
+        }
+
+        const groupId = memberships[0].group_id;
+        console.log('Found group_id:', groupId);
+
+        // Fetch group details
+        const { data: group, error: groupError } = await supabase
+          .from('groups')
+          .select('id, name')
+          .eq('id', groupId)
+          .single();
+
+        console.log('Group details query result:', { group, groupError });
+
+        if (groupError) {
+          console.error('Error getting group details:', groupError);
+          setLoadingUser(false);
+          return;
+        }
+
+        if (group) {
+          console.log('Setting group state:', group);
           setCurrentGroupId(group.id);
           setGroupName(group.name);
         }
 
+        console.log('Final state will be:', { groupId: group?.id, groupName: group?.name });
         setLoadingUser(false);
       } catch (err) {
         console.error('Error:', err);
