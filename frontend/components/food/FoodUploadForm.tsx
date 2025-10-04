@@ -113,30 +113,26 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
       {/* Image Preview or Upload Button */}
       {!imageSrc ? (
         <div className="space-y-3">
-          {/* Camera Capture */}
-          <label className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
-            <span className="text-2xl">📷</span>
-            <span>拍攝食物照片</span>
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </label>
-
-          {/* Gallery Selection */}
-          <label className="w-full bg-gray-100 text-gray-700 py-4 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
-            <span className="text-2xl">🖼️</span>
-            <span>從相簿選擇</span>
+          {/* Visible file input - works on all platforms including iPad */}
+          <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50">
+            <div className="mb-4">
+              <span className="text-4xl">📷</span>
+              <p className="text-gray-700 font-medium mt-2">選擇或拍攝食物照片</p>
+              <p className="text-gray-500 text-sm mt-1">支援 JPG、PNG 等圖片格式</p>
+            </div>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="hidden"
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-3 file:px-6
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-600 file:text-white
+                hover:file:bg-blue-700
+                cursor-pointer"
             />
-          </label>
+          </div>
         </div>
       ) : (
         <div>
@@ -190,4 +186,3 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
     </div>
   );
 }
-
