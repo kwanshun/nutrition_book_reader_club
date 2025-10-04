@@ -241,12 +241,12 @@ GET /records 404 in 4356ms
 - ✅ Daily Content: 100%
 - ✅ Quiz System: 100%
 - ✅ Text Sharing: 100%
+- ✅ Food Upload: 100% (requires API key setup)
 - ⏳ Group Chat: 0%
-- ⏳ Food Upload: 0%
 - ⏳ Announcements: 0%
 - ⏳ Progress Dashboard (/records): 0%
 
-**MVP Features:** 4/8 (50%)  
+**MVP Features:** 5/8 (63%)  
 **Core User Flow:** ✅ Working End-to-End
 
 **Ready for:**
