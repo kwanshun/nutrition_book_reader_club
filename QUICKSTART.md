@@ -143,13 +143,26 @@ Check that `.env` exists in project root with your credentials
 - Verify internet connection
 - Check Supabase dashboard is accessible
 
+### Authentication issues
+- **"Email not confirmed" error**: User needs to check email and click confirmation link
+- **"Invalid login credentials"**: Check email/password spelling
+- **Registration fails**: Check if email already exists in Supabase dashboard
+- **Callback route 404**: Ensure `/app/auth/callback/route.ts` exists
+
 ---
 
 ## 📞 Contact & Resources
 
 - **Supabase Docs**: https://supabase.com/docs
+- **Supabase Auth Guide**: https://supabase.com/docs/guides/auth (Essential for email confirmation)
 - **Next.js Docs**: https://nextjs.org/docs
 - **Gemini API Docs**: https://ai.google.dev/docs
+
+### 🔐 Authentication Notes (Important!)
+- **Email confirmation is required** by default in Supabase
+- **Users must confirm email** before they can login
+- **Callback route needed**: `/auth/callback` for email confirmation
+- **Error handling**: "Email not confirmed" means user needs to check email
 
 ---
 
