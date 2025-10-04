@@ -5,10 +5,10 @@ import NewsCard from '@/components/ui/NewsCard';
 export default function HomePage() {
   const features = [
     { href: '/content/today', icon: '📅', label: '今天內容' },
-    { href: '/checkin', icon: '✏️', label: '打咭' },
+    { href: '/share', icon: '✏️', label: '分享心得' },
     { href: '/quiz', icon: '🖥️', label: '測一測' },
     { href: '/food', icon: '🍴📷', label: '食過什麼' },
-    { href: '/records', icon: '📅', label: '21天記錄' },
+    { href: '/records', icon: '📊', label: '21天記錄' },
     { href: '/chat', icon: '💬', label: '聊天室' },
   ];
 

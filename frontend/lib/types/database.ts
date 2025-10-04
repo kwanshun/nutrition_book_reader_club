@@ -69,7 +69,7 @@ export interface FoodLog {
   user_id: string;
   group_id: string;
   image_url: string;
-  detected_foods: any;
+  detected_foods: unknown;
   user_input: string | null;
   created_at: string;
   user?: {

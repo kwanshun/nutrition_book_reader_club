@@ -1,13 +1,85 @@
+'use client';
+
 import DashboardHeader from '@/components/layout/DashboardHeader';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function MenuPage() {
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    await signOut();
+    router.push('/login');
+  };
+
   return (
     <div>
       <DashboardHeader period={21} />
       <main className="max-w-md mx-auto px-4 py-6">
-        <div className="bg-blue-100 border-4 border-blue-400 rounded-lg p-8 text-center">
-          <h1 className="text-3xl font-bold mb-4 text-blue-900">☰ 選單頁面</h1>
-          <p className="text-lg text-blue-800">這是選單頁面！導航成功了！</p>
+        <div className="space-y-6">
+          {/* User Info */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">用戶資訊</h2>
+            <div className="space-y-2">
+              <p className="text-gray-600">
+                <span className="font-medium">電子郵件：</span>
+                {user?.email}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-medium">註冊時間：</span>
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-TW') : '未知'}
+              </p>
+            </div>
+          </div>
+
+          {/* Menu Options */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">設定</h2>
+            <div className="space-y-4">
+              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">👤</span>
+                  <div>
+                    <p className="font-medium text-gray-900">個人資料</p>
+                    <p className="text-sm text-gray-500">編輯個人資訊</p>
+                  </div>
+                </div>
+              </button>
+
+              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🔔</span>
+                  <div>
+                    <p className="font-medium text-gray-900">通知設定</p>
+                    <p className="text-sm text-gray-500">管理通知偏好</p>
+                  </div>
+                </div>
+              </button>
+
+              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">❓</span>
+                  <div>
+                    <p className="font-medium text-gray-900">幫助與支援</p>
+                    <p className="text-sm text-gray-500">常見問題與聯繫</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            disabled={loading}
+            className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? '登出中...' : '登出'}
+          </button>
         </div>
       </main>
     </div>

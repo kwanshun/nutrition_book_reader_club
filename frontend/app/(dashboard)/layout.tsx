@@ -1,4 +1,5 @@
 import BottomNav from '@/components/layout/BottomNav';
+import AuthWrapper from '@/components/auth/AuthWrapper';
 
 export default function DashboardLayout({
   children,
@@ -6,10 +7,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
-      {children}
-      <BottomNav />
-    </div>
+    <AuthWrapper>
+      <div className="min-h-screen bg-gray-50 pb-16">
+        {children}
+        <BottomNav />
+      </div>
+    </AuthWrapper>
   );
 }
 

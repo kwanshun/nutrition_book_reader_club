@@ -28,19 +28,43 @@ export const useAuth = () => {
   }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      console.log('Attempting login with:', { email: email.trim().toLowerCase() });
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      
+      console.log('Login response:', { data, error });
+      
+      return { data, error };
+    } catch (err) {
+      console.error('Login error:', err);
+      return { data: null, error: err };
+    }
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      console.log('Attempting signup with:', { email: email.trim().toLowerCase() });
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          // Temporarily disable email confirmation for development
+          emailRedirectTo: undefined,
+        }
+      });
+      
+      console.log('Signup response:', { data, error });
+      
+      return { data, error };
+    } catch (err) {
+      console.error('Signup error:', err);
+      return { data: null, error: err };
+    }
   };
 
   const signOut = async () => {
@@ -48,7 +72,37 @@ export const useAuth = () => {
     return { error };
   };
 
-  return { user, loading, signIn, signUp, signOut };
+  const resendConfirmation = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.trim().toLowerCase(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
+      return { error };
+    } catch (err) {
+      console.error('Resend confirmation error:', err);
+      return { error: err };
+    }
+  };
+
+  const confirmEmail = async (email: string, token: string) => {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token,
+        type: 'email'
+      });
+      return { data, error };
+    } catch (err) {
+      console.error('Confirm email error:', err);
+      return { data: null, error: err };
+    }
+  };
+
+  return { user, loading, signIn, signUp, signOut, resendConfirmation, confirmEmail };
 };
 
 
