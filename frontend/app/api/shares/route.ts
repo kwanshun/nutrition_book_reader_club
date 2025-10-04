@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       .from('text_shares')
       .insert({
         user_id: user.id,
-        group_id: group_id || user.id, // Fallback to user ID for demo
+        group_id: group_id || null, // Allow NULL for testing without groups
         content: content.trim()
       })
       .select('*')
