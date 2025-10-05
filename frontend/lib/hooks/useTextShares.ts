@@ -8,6 +8,7 @@ interface UseTextSharesReturn {
   error: string | null;
   hasSharedToday: boolean;
   hasSharedForDay: (day: number) => boolean;
+  getExistingShareForDay: (day: number) => TextShare | null;
   createShare: (content: string, dayNumber: number, groupId?: string) => Promise<boolean>;
   refreshShares: (selectedDay?: number) => Promise<void>;
 }
@@ -48,6 +49,11 @@ export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: 
   // Check if user has shared for a specific day
   const hasSharedForDay = (day: number): boolean => {
     return shares.some(share => share.day_number === day);
+  };
+
+  // Get existing share for a specific day
+  const getExistingShareForDay = (day: number): TextShare | null => {
+    return shares.find(share => share.day_number === day) || null;
   };
 
   // Fetch shares
@@ -115,8 +121,23 @@ export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: 
 
       const data = await response.json();
 
-      // Add to local state
-      setShares(prev => [data, ...prev]);
+      // Update local state - either add new or update existing
+      setShares(prev => {
+        const existingIndex = prev.findIndex(share => 
+          share.day_number === dayNumber && share.user_id === userId
+        );
+        
+        if (existingIndex >= 0) {
+          // Update existing share
+          const updated = [...prev];
+          updated[existingIndex] = data;
+          return updated;
+        } else {
+          // Add new share
+          return [data, ...prev];
+        }
+      });
+      
       setHasSharedToday(true);
       return true;
     } catch (error) {
@@ -148,6 +169,7 @@ export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: 
     error,
     hasSharedToday,
     hasSharedForDay,
+    getExistingShareForDay,
     createShare,
     refreshShares
   };

@@ -1,21 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface ShareFormProps {
   onSubmit: (content: string) => Promise<boolean>;
   disabled?: boolean;
   loading?: boolean;
   placeholder?: string;
+  initialContent?: string;
+  isEditing?: boolean;
+  lastModified?: string;
+  onDraftSave?: (content: string) => void;
 }
 
 export default function ShareForm({ 
   onSubmit, 
   disabled = false, 
   loading = false,
-  placeholder = "今天學到了什麼？有什麼感想？想和大家分享什麼？"
+  placeholder = "今天學到了什麼？有什麼感想？想和大家分享什麼？",
+  initialContent = '',
+  isEditing = false,
+  lastModified,
+  onDraftSave
 }: ShareFormProps) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(initialContent);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModified, setIsModified] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const autoSaveRef = useRef<NodeJS.Timeout>();
+  const lastSavedContentRef = useRef(initialContent);
+
+  // Update content when initialContent changes
+  useEffect(() => {
+    setContent(initialContent);
+    lastSavedContentRef.current = initialContent;
+    setIsModified(false);
+  }, [initialContent]);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (autoSaveRef.current) {
+      clearTimeout(autoSaveRef.current);
+    }
+
+    if (content && content !== lastSavedContentRef.current && onDraftSave) {
+      autoSaveRef.current = setTimeout(() => {
+        onDraftSave(content);
+        setDraftSaved(true);
+        setTimeout(() => setDraftSaved(false), 2000);
+      }, 30000); // 30 seconds
+    }
+
+    return () => {
+      if (autoSaveRef.current) {
+        clearTimeout(autoSaveRef.current);
+      }
+    };
+  }, [content, onDraftSave]);
+
+  // Check if content is modified
+  useEffect(() => {
+    setIsModified(content !== lastSavedContentRef.current);
+  }, [content]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,15 +72,22 @@ export default function ShareForm({
     try {
       const success = await onSubmit(content.trim());
       if (success) {
-        setContent('');
-        setMessage('分享成功！');
+        lastSavedContentRef.current = content.trim();
+        setIsModified(false);
+        setMessage(isEditing ? '更新成功！' : '分享成功！');
         setTimeout(() => setMessage(''), 3000);
+        
+        // Clear content only if it's a new share
+        if (!isEditing) {
+          setContent('');
+          lastSavedContentRef.current = '';
+        }
       } else {
-        setMessage('分享失敗，請稍後再試');
+        setMessage(isEditing ? '更新失敗，請稍後再試' : '分享失敗，請稍後再試');
       }
     } catch (error) {
       console.error('Error submitting share:', error);
-      setMessage('分享失敗，請稍後再試');
+      setMessage(isEditing ? '更新失敗，請稍後再試' : '分享失敗，請稍後再試');
     } finally {
       setIsSubmitting(false);
     }
@@ -43,8 +95,47 @@ export default function ShareForm({
 
   const isFormDisabled = disabled || loading || isSubmitting || !content.trim();
 
+  // Format last modified time
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('zh-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Status indicators */}
+      {isEditing && (
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-2">
+            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+              ✓ 已分享
+            </span>
+            {isModified && (
+              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
+                ⚠️ 已修改
+              </span>
+            )}
+            {draftSaved && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                💾 草稿已保存
+              </span>
+            )}
+          </div>
+          {lastModified && (
+            <div className="text-gray-500">
+              最後更新: {formatDateTime(lastModified)}
+            </div>
+          )}
+        </div>
+      )}
+
       <div>
         <label htmlFor="share-content" className="block text-sm font-medium text-gray-700 mb-2">
           分享內容
@@ -87,7 +178,10 @@ export default function ShareForm({
         disabled={isFormDisabled}
         className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
       >
-        {isSubmitting ? '分享中...' : '分享心得'}
+        {isSubmitting 
+          ? (isEditing ? '更新中...' : '分享中...') 
+          : (isEditing ? '更新' : '分享')
+        }
       </button>
 
       {disabled && (
@@ -95,7 +189,7 @@ export default function ShareForm({
           <div className="text-6xl mb-4">✅</div>
           <p className="text-gray-600">
             你今天已經分享了心得！<br />
-            明天再來分享新的學習心得吧。
+            你可以隨時回來修改和更新你的想法。
           </p>
         </div>
       )}

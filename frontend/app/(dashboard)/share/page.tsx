@@ -10,7 +10,7 @@ export default function SharePage() {
   const { user } = useAuth();
   const [currentDay, setCurrentDay] = useState(1);
   const [todayDay, setTodayDay] = useState(1);
-  const { shares, loading, error, hasSharedToday, hasSharedForDay, createShare, refreshShares } = useTextShares(user?.id);
+  const { shares, loading, error, hasSharedToday, hasSharedForDay, getExistingShareForDay, createShare, refreshShares } = useTextShares(user?.id);
   const { shares: otherUsersShares, loading: otherUsersLoading, error: otherUsersError, refreshShares: refreshOtherUsersShares } = useTextShares(user?.id, undefined, true);
 
   // Get current day based on date (same logic as content/today page)
@@ -37,6 +37,7 @@ export default function SharePage() {
     const success = await createShare(content, currentDay);
     if (success) {
       await refreshShares(currentDay); // Refresh the list
+      await refreshOtherUsersShares(currentDay);
     }
     return success;
   };
@@ -46,6 +47,29 @@ export default function SharePage() {
     await refreshShares(newDay);
     await refreshOtherUsersShares(newDay);
   };
+
+  // Auto-save draft functionality
+  const saveDraft = (content: string) => {
+    if (typeof window !== 'undefined' && user) {
+      const key = `share_draft_${user.id}_${currentDay}`;
+      localStorage.setItem(key, content);
+    }
+  };
+
+  // Load draft functionality
+  const loadDraft = (): string => {
+    if (typeof window !== 'undefined' && user) {
+      const key = `share_draft_${user.id}_${currentDay}`;
+      return localStorage.getItem(key) || '';
+    }
+    return '';
+  };
+
+  // Get existing share for current day
+  const existingShare = getExistingShareForDay(currentDay);
+  const isEditing = !!existingShare;
+  const initialContent = existingShare?.content || loadDraft();
+  const lastModified = existingShare?.updated_at || existingShare?.created_at;
 
   return (
     <div className="max-w-md mx-auto bg-white">
@@ -79,8 +103,12 @@ export default function SharePage() {
             
             <ShareForm
               onSubmit={handleShareSubmit}
-              disabled={hasSharedForDay(currentDay)}
+              disabled={false} // Never disable - allow editing
               loading={loading}
+              initialContent={initialContent}
+              isEditing={isEditing}
+              lastModified={lastModified}
+              onDraftSave={saveDraft}
             />
           </div>
 

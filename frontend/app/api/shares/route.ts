@@ -34,39 +34,56 @@ export async function POST(request: NextRequest) {
     // Check if user has already shared for this day
     const { data: existingShare } = await supabase
       .from('text_shares')
-      .select('id')
+      .select('id, created_at, updated_at')
       .eq('user_id', user.id)
       .eq('day_number', day_number)
       .limit(1);
 
+    let data, error;
+    let isUpdate = false;
+
     if (existingShare && existingShare.length > 0) {
-      return NextResponse.json(
-        { error: `You have already shared for day ${day_number}` },
-        { status: 409 }
-      );
+      // Update existing share
+      const { data: updateData, error: updateError } = await supabase
+        .from('text_shares')
+        .update({
+          content: content.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingShare[0].id)
+        .select('*')
+        .single();
+      
+      data = updateData;
+      error = updateError;
+      isUpdate = true;
+    } else {
+      // Create new share
+      const { data: createData, error: createError } = await supabase
+        .from('text_shares')
+        .insert({
+          user_id: user.id,
+          group_id: group_id || null, // Allow NULL for testing without groups
+          content: content.trim(),
+          day_number: day_number
+        })
+        .select('*')
+        .single();
+      
+      data = createData;
+      error = createError;
+      isUpdate = false;
     }
 
-    // Create the share
-    const { data, error } = await supabase
-      .from('text_shares')
-      .insert({
-        user_id: user.id,
-        group_id: group_id || null, // Allow NULL for testing without groups
-        content: content.trim(),
-        day_number: day_number
-      })
-      .select('*')
-      .single();
-
     if (error) {
-      console.error('Error creating share:', error);
+      console.error(`Error ${isUpdate ? 'updating' : 'creating'} share:`, error);
       return NextResponse.json(
-        { error: 'Failed to create share' },
+        { error: `Failed to ${isUpdate ? 'update' : 'create'} share` },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(data, { status: isUpdate ? 200 : 201 });
   } catch (error) {
     console.error('Error in POST /api/shares:', error);
     return NextResponse.json(
