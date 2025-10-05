@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 export default function TodayContentPage() {
   const [currentDay, setCurrentDay] = useState(1);
+  const [todayDay, setTodayDay] = useState(1);
   const { content, loading, error } = useContent(currentDay);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function TodayContentPage() {
     const calculatedDay = Math.min(daysSinceStart + 1, 21);
     
     setCurrentDay(calculatedDay);
+    setTodayDay(calculatedDay);
   }, []);
 
   const handleDayChange = (day: number) => {
@@ -101,7 +103,7 @@ export default function TodayContentPage() {
             
             <button
               onClick={() => handleDayChange(currentDay + 1)}
-              disabled={currentDay >= 21}
+              disabled={currentDay >= todayDay}
               className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>後一天</span>
@@ -146,32 +148,31 @@ export default function TodayContentPage() {
           >
             ✍️ 分享心得
           </Link>
-          
-          <Link
-            href={`/food?day=${currentDay}`}
-            className="block w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-medium text-center hover:bg-orange-700 transition-colors"
-          >
-            🍴 記錄飲食
-          </Link>
         </div>
 
         {/* Quick Navigation */}
         <div className="mt-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">快速導航</h3>
           <div className="grid grid-cols-7 gap-2">
-            {Array.from({ length: 21 }, (_, i) => i + 1).map((day) => (
-              <button
-                key={day}
-                onClick={() => handleDayChange(day)}
-                className={`p-2 rounded text-sm font-medium transition-colors ${
-                  day === currentDay
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {day}
-              </button>
-            ))}
+            {Array.from({ length: 21 }, (_, i) => i + 1).map((day) => {
+              const isClickable = day <= todayDay;
+              return (
+                <button
+                  key={day}
+                  onClick={() => isClickable && handleDayChange(day)}
+                  disabled={!isClickable}
+                  className={`p-2 rounded text-sm font-medium transition-colors ${
+                    day === currentDay
+                      ? 'bg-blue-600 text-white'
+                      : isClickable
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {day}
+                </button>
+              );
+            })}
           </div>
         </div>
       </main>

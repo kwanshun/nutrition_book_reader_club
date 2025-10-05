@@ -8,7 +8,7 @@ export default function BottomNav() {
   
   const navItems = [
     { href: '/', icon: '🏠', label: '首頁' },
-    { href: '/share', icon: '💭', label: '分享' },
+    { href: '/announcements', icon: '📢', label: '最新消息' },
     { href: '/chat', icon: '💬', label: '聊天' },
     { href: '/menu', icon: '☰', label: '選單' },
   ];

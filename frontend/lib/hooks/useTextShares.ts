@@ -12,7 +12,7 @@ interface UseTextSharesReturn {
   refreshShares: (selectedDay?: number) => Promise<void>;
 }
 
-export function useTextShares(userId?: string, groupId?: string): UseTextSharesReturn {
+export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: boolean = false): UseTextSharesReturn {
   const [shares, setShares] = useState<TextShare[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +65,9 @@ export function useTextShares(userId?: string, groupId?: string): UseTextSharesR
       }
       if (selectedDay) {
         params.append('day_number', selectedDay.toString());
+      }
+      if (fetchAllUsers) {
+        params.append('all_users', 'true');
       }
       params.append('limit', '20');
 

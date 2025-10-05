@@ -1,7 +1,5 @@
 'use client';
 
-import { useUserProfile } from '@/lib/hooks/useUserProfile';
-
 interface DashboardHeaderProps {
   period?: number;
   organizationName?: string;
@@ -10,24 +8,12 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({
   period = 21,
-  organizationName = '澳門營養交流協會',
+  organizationName = '營養交流協會',
   programName = '營養人生讀書會',
 }: DashboardHeaderProps) {
-  const { profile, loading } = useUserProfile();
-
   return (
     <header className="bg-black text-white p-6">
       <div className="max-w-md mx-auto">
-        {/* Top row with user name */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1"></div>
-          {!loading && profile && (
-            <span className="text-xs text-gray-300">
-              {profile.display_name}
-            </span>
-          )}
-        </div>
-
         {/* Main content */}
         <div className="flex items-center gap-4">
           {/* Book Cover */}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FoodItem } from '@/app/(dashboard)/food/page';
+import { useHeicConversion, HeicConversionStatus, validateImageFile } from './HeicSupport';
 
 interface FoodUploadFormProps {
   onAnalysisComplete: (foods: FoodItem[], imageSrc: string) => void;
@@ -11,38 +12,43 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // HEIC conversion support
+  const { 
+    isConverting, 
+    error: heicError, 
+    handleFileWithHeicSupport 
+  } = useHeicConversion();
 
-  // Handle image upload
+  // Handle image upload with HEIC support
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('File input triggered');
     const file = e.target.files?.[0];
     console.log('Selected file:', file);
     
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('請上傳圖片檔案');
+      // Validate file first
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setError(validation.error || '檔案驗證失敗');
         return;
       }
 
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setError('圖片檔案過大，請上傳小於 10MB 的圖片');
-        return;
-      }
-
-      console.log('Reading file...');
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        console.log('File loaded successfully');
-        setImageSrc(event.target?.result as string);
-        setError(null);
-      };
-      reader.onerror = (error) => {
-        console.error('FileReader error:', error);
-        setError('讀取檔案失敗');
-      };
-      reader.readAsDataURL(file);
+      console.log('Processing file with HEIC support...');
+      
+      // Use HEIC-aware file handler
+      handleFileWithHeicSupport(
+        file,
+        (dataUrl: string, convertedFile: File) => {
+          console.log('File processed successfully:', convertedFile);
+          setImageSrc(dataUrl);
+          setError(null);
+        },
+        (errorMessage: string) => {
+          console.error('File processing error:', errorMessage);
+          setError(errorMessage);
+        }
+      );
     }
   };
 
@@ -118,11 +124,11 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
             <div className="mb-4">
               <span className="text-4xl">📷</span>
               <p className="text-gray-700 font-medium mt-2">選擇或拍攝食物照片</p>
-              <p className="text-gray-500 text-sm mt-1">支援 JPG、PNG 等圖片格式</p>
+              <p className="text-gray-500 text-sm mt-1">支援 JPG、PNG、HEIC 等圖片格式</p>
             </div>
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               onChange={handleImageUpload}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-3 file:px-6
@@ -173,6 +179,9 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
           </button>
         </div>
       )}
+
+      {/* HEIC Conversion Status */}
+      <HeicConversionStatus isConverting={isConverting} error={heicError} />
 
       {/* Error Display */}
       {error && (

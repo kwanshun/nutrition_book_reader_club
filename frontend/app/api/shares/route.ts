@@ -93,14 +93,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get('group_id');
     const dayNumber = searchParams.get('day_number');
+    const allUsers = searchParams.get('all_users') === 'true';
     const limit = parseInt(searchParams.get('limit') || '20');
 
     let query = supabase
       .from('text_shares')
       .select('*')
-      .eq('user_id', user.id) // Only show current user's shares
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    // Filter by user only if not fetching all users' shares
+    if (!allUsers) {
+      query = query.eq('user_id', user.id);
+    }
 
     // Filter by group if provided
     if (groupId) {
@@ -127,6 +132,7 @@ export async function GET(request: NextRequest) {
     let displayNames: { [userId: string]: string } = {};
 
     if (userIds.length > 0) {
+      // Get profiles from user_profiles table
       const { data: profiles } = await supabase
         .from('user_profiles')
         .select('user_id, display_name')
@@ -140,11 +146,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Add display names to shares
-    const sharesWithDisplayNames = shares?.map(share => ({
-      ...share,
-      display_name: displayNames[share.user_id] || `用戶${share.user_id.slice(-4)}`
-    })) || [];
+    // Add display names to shares with fallback logic
+    const sharesWithDisplayNames = shares?.map(share => {
+      let displayName = displayNames[share.user_id];
+      
+      if (!displayName) {
+        // Fallback to user ID suffix
+        displayName = `用戶${share.user_id.slice(-4)}`;
+      }
+
+      return {
+        ...share,
+        display_name: displayName
+      };
+    }) || [];
 
     return NextResponse.json(sharesWithDisplayNames);
   } catch (error) {

@@ -9,14 +9,26 @@ import TextShareCard from '@/components/share/TextShareCard';
 export default function SharePage() {
   const { user } = useAuth();
   const [currentDay, setCurrentDay] = useState(1);
+  const [todayDay, setTodayDay] = useState(1);
   const { shares, loading, error, hasSharedToday, hasSharedForDay, createShare, refreshShares } = useTextShares(user?.id);
+  const { shares: otherUsersShares, loading: otherUsersLoading, error: otherUsersError, refreshShares: refreshOtherUsersShares } = useTextShares(user?.id, undefined, true);
 
-  // Get current day based on date (for demo, using day 1)
+  // Get current day based on date (same logic as content/today page)
   useEffect(() => {
     const today = new Date();
-    const startDate = new Date('2024-01-01'); // Adjust based on program start
-    const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    setCurrentDay(Math.min(Math.max(daysDiff + 1, 1), 21));
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    
+    // Calculate days since first day of month
+    const daysSinceStart = Math.floor((today.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Current day is days since start + 1 (1-based indexing)
+    // Cap at 21 days maximum
+    const calculatedDay = Math.min(daysSinceStart + 1, 21);
+    
+    setCurrentDay(calculatedDay);
+    setTodayDay(calculatedDay);
   }, []);
 
   const handleShareSubmit = async (content: string): Promise<boolean> => {
@@ -32,6 +44,7 @@ export default function SharePage() {
   const handleDayChange = async (newDay: number) => {
     setCurrentDay(newDay);
     await refreshShares(newDay);
+    await refreshOtherUsersShares(newDay);
   };
 
   return (
@@ -45,7 +58,7 @@ export default function SharePage() {
               onChange={(e) => handleDayChange(parseInt(e.target.value))}
               className="bg-blue-700 text-white border border-blue-500 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
-              {Array.from({ length: 21 }, (_, i) => i + 1).map(day => (
+              {Array.from({ length: todayDay }, (_, i) => i + 1).map(day => (
                 <option key={day} value={day}>
                   第 {day} 天
                 </option>
@@ -81,51 +94,39 @@ export default function SharePage() {
             </div>
           )}
 
-          {/* Recent Shares */}
+          {/* Other Users' Shares */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              最近的分享
+              第 {currentDay} 天的分享
             </h3>
             
-            {loading ? (
+            {otherUsersLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="text-gray-500 mt-2">載入中...</p>
               </div>
-            ) : shares.length === 0 ? (
+            ) : otherUsersError ? (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-2">⚠️</div>
+                <p>載入分享內容時發生錯誤</p>
+              </div>
+            ) : otherUsersShares.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <div className="text-4xl mb-2">💭</div>
-                <p>還沒有分享內容</p>
+                <p>第 {currentDay} 天還沒有其他用戶的分享</p>
                 <p className="text-sm">成為第一個分享心得的人吧！</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {shares.map((share) => (
-                  <TextShareCard key={share.id} share={share} />
-                ))}
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                {otherUsersShares
+                  .filter(share => share.day_number === currentDay && share.user_id !== user?.id)
+                  .map((share) => (
+                    <TextShareCard key={share.id} share={share} />
+                  ))}
               </div>
             )}
           </div>
 
-          {/* Daily Reminder */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <div className="text-blue-600 text-xl">💡</div>
-              <div>
-                <h4 className="font-medium text-blue-900 mb-1">每日分享提醒</h4>
-                <p className="text-blue-700 text-sm">
-                  每天分享你的學習心得，與其他成員一起成長！
-                  分享內容可以是：
-                </p>
-                <ul className="text-blue-700 text-sm mt-2 space-y-1">
-                  <li>• 今天學到的新知識</li>
-                  <li>• 對營養觀念的新理解</li>
-                  <li>• 實際應用的心得</li>
-                  <li>• 想問的問題或疑惑</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
     </div>
   );
