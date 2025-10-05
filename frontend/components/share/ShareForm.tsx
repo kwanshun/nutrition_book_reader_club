@@ -24,8 +24,8 @@ export default function ShareForm({
   const [content, setContent] = useState(initialContent);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModified, setIsModified] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [hasBeenUpdated, setHasBeenUpdated] = useState(false);
   const autoSaveRef = useRef<NodeJS.Timeout>();
   const lastSavedContentRef = useRef(initialContent);
 
@@ -33,7 +33,7 @@ export default function ShareForm({
   useEffect(() => {
     setContent(initialContent);
     lastSavedContentRef.current = initialContent;
-    setIsModified(false);
+    setHasBeenUpdated(false);
   }, [initialContent]);
 
   // Auto-save logic
@@ -57,10 +57,6 @@ export default function ShareForm({
     };
   }, [content, onDraftSave]);
 
-  // Check if content is modified
-  useEffect(() => {
-    setIsModified(content !== lastSavedContentRef.current);
-  }, [content]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,9 +69,13 @@ export default function ShareForm({
       const success = await onSubmit(content.trim());
       if (success) {
         lastSavedContentRef.current = content.trim();
-        setIsModified(false);
         setMessage(isEditing ? '更新成功！' : '分享成功！');
         setTimeout(() => setMessage(''), 3000);
+        
+        // Set updated flag for editing mode
+        if (isEditing) {
+          setHasBeenUpdated(true);
+        }
         
         // Clear content only if it's a new share
         if (!isEditing) {
@@ -114,12 +114,13 @@ export default function ShareForm({
       {isEditing && (
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-2">
-            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-              ✓ 已分享
-            </span>
-            {isModified && (
-              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
-                ⚠️ 已修改
+            {hasBeenUpdated ? (
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                ✓ 已修改
+              </span>
+            ) : (
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                ✓ 已分享
               </span>
             )}
             {draftSaved && (
