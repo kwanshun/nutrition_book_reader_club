@@ -9,7 +9,7 @@ export default function HomePage() {
     { href: '/quiz', icon: '🖥️', label: '測一測' },
     { href: '/food', icon: '🍴📷', label: '食過什麼' },
     { href: '/records', icon: '📊', label: '21天記錄' },
-    { href: '/chat', icon: '💬', label: '聊天室' },
+    { href: '/buddyshare', icon: '👥', label: '同學分享' },
   ];
 
   const sampleNews = [

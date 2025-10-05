@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     // Get user profile
     const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('*')
       .eq('user_id', user.id)
       .single();
@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest) {
 
     // Upsert profile (insert or update)
     const { data, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .upsert({
         user_id: user.id,
         display_name: trimmedName
