@@ -58,11 +58,11 @@ export default function FoodResultDisplay({
     <div>
       {/* Image Thumbnail */}
       {imageSrc && (
-        <div className="mb-4">
+        <div className="mb-6">
           <img
             src={imageSrc}
             alt="Analyzed food"
-            className="w-full h-32 object-cover rounded-lg"
+            className="w-full h-64 object-cover rounded-lg shadow-md"
           />
         </div>
       )}

@@ -598,6 +598,212 @@ npm run dev
 
 ---
 
+## 🧪 Test Data Creation Guide
+
+### **Overview**
+This section provides a complete guide for creating test data for users, including all three activities (text shares, food logs, and quiz responses). This eliminates the need for trial-and-error in future test data creation.
+
+### **Prerequisites**
+1. **Service Role Key**: Located in `frontend/.env.local` as `SUPABASE_SERVICE_ROLE_KEY`
+2. **User Account**: Target user must exist in `auth.users` table
+3. **Group Membership**: User must be a member of a group in `group_members` table
+4. **Demo Images**: 18 demo food images available in `frontend/public/demo-images/`
+
+### **Step-by-Step Process**
+
+#### **Step 1: Identify Target User**
+```bash
+# Check if user exists in Supabase Dashboard
+# Go to Authentication > Users
+# Find user email (e.g., test77@andywong.me)
+# Note the user ID (e.g., 7ab5065e-be7b-4e11-92ac-dec1e687805c)
+```
+
+#### **Step 2: Verify Group Membership**
+```bash
+# Check group_members table in Supabase Dashboard
+# Ensure user is in a group (e.g., group_id: 9c807498-a3c0-45f3-9421-dac642849aff)
+# If not, add user to group manually via dashboard
+
+# IMPORTANT: Even if user is in group, the script may show "User not in any group"
+# This is due to RLS policies - the regular API key cannot read group_members table
+# The service role key (used in the script) will work correctly
+```
+
+#### **Step 3: Create Test Data Script**
+Use the template script: `create_test77_service_role.py`
+
+**Key Configuration Variables:**
+```python
+# User Information
+test_user_id = '7ab5065e-be7b-4e11-92ac-dec1e687805c'  # From auth.users
+group_id = '9c807498-a3c0-45f3-9421-dac642849aff'      # From groups table
+
+# Demo Images (6 images for 6 days)
+demo_images = [
+    '/demo-images/breakfast-1.jpg',
+    '/demo-images/breakfast-2.jpg', 
+    '/demo-images/lunch-1.jpg',
+    '/demo-images/lunch-2.jpg',
+    '/demo-images/dinner-1.jpg',
+    '/demo-images/dinner-2.jpg'
+]
+```
+
+#### **Step 4: Run the Script**
+```bash
+# Navigate to project directory
+cd /Users/andywong/Library/CloudStorage/SynologyDrive-home/1_Project/nutrition_book_reader_club
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Run test data creation script
+python create_test77_service_role.py
+```
+
+### **Expected Output**
+```
+🔧 Creating Test Data for test77@andywong.me using Service Role Key
+======================================================================
+✅ Using user ID: 7ab5065e-be7b-4e11-92ac-dec1e687805c
+✅ Using group ID: 9c807498-a3c0-45f3-9421-dac642849aff
+
+📝 Creating text shares...
+  ✅ Day 1 text share created
+  ✅ Day 2 text share created
+  ✅ Day 3 text share created
+  ✅ Day 4 text share created
+  ✅ Day 5 text share created
+  ✅ Day 6 text share created
+
+🍽️ Creating food logs...
+  ✅ Day 1 food log created
+  ✅ Day 2 food log created
+  ✅ Day 3 food log created
+  ✅ Day 4 food log created
+  ✅ Day 5 food log created
+  ✅ Day 6 food log created
+
+🧠 Creating quiz responses...
+  ✅ Day 1 quiz response created (Score: 3/3)
+  ✅ Day 2 quiz response created (Score: 2/3)
+  ✅ Day 3 quiz response created (Score: 3/3)
+  ✅ Day 4 quiz response created (Score: 2/3)
+  ✅ Day 5 quiz response created (Score: 3/3)
+  ✅ Day 6 quiz response created (Score: 2/3)
+
+======================================================================
+✅ Test Data Creation Complete!
+   Text Shares: 6/6
+   Food Logs: 6/6
+   Quiz Responses: 6/6
+======================================================================
+🎉 All test data created successfully!
+User test77@andywong.me now has complete activity data for Day 1-6
+```
+
+### **Data Created**
+
+#### **Text Shares (6 entries)**
+- **Table**: `text_shares`
+- **Content**: Daily reflections related to nutrition topics
+- **Days**: 1-6 with meaningful Chinese content
+- **Timestamps**: Spread across 6 days (current date - 5 days to current date)
+
+#### **Food Logs (6 entries)**
+- **Table**: `food_logs` + `food_log_items`
+- **Images**: Uses demo images from `/demo-images/` directory
+- **Food Items**: Generic food items with Chinese names
+- **Portions**: Varying portion sizes (100g, 200g, etc.)
+
+#### **Quiz Responses (6 entries)**
+- **Table**: `quiz_responses` (via `save_quiz_response` function)
+- **Scores**: Random scores between 2-3 out of 3 questions
+- **Days**: 1-6 with proper day_number mapping
+
+### **Troubleshooting**
+
+#### **Common Issues & Solutions**
+
+1. **"Missing SUPABASE_SERVICE_ROLE_KEY"**
+   ```bash
+   # Solution: Ensure frontend/.env.local exists with service role key
+   # Check: frontend/.env.local contains SUPABASE_SERVICE_ROLE_KEY
+   ```
+
+2. **"new row violates row-level security policy"**
+   ```bash
+   # Solution: Use service role key (not regular API key)
+   # The script automatically loads from frontend/.env.local
+   ```
+
+3. **"User not in any group" (RLS Policy Issue)**
+   ```bash
+   # Root Cause: RLS policies prevent regular API key from reading group_members table
+   # Even though user exists in group_members table, the query returns empty results
+   # This happens because the regular SUPABASE_KEY doesn't have user context (auth.uid())
+   
+   # Solution: Use service role key instead of regular API key
+   # The script automatically loads SUPABASE_SERVICE_ROLE_KEY from frontend/.env.local
+   # Service role key bypasses RLS policies and can read all data
+   
+   # Alternative: If you must use regular key, manually set the group_id:
+   group_id = '9c807498-a3c0-45f3-9421-dac642849aff'  # Known group ID from dashboard
+   ```
+
+4. **"Quiz response failed"**
+   ```bash
+   # Solution: Ensure save_quiz_response function exists
+   # Check: scripts/migrations/005_reset_quiz_responses.sql was executed
+   ```
+
+### **Customization Options**
+
+#### **For Different Users**
+```python
+# Change these variables in the script:
+test_user_id = 'NEW_USER_ID_HERE'
+group_id = 'NEW_GROUP_ID_HERE'  # Optional: use existing group
+```
+
+#### **For Different Date Ranges**
+```python
+# Modify the date calculation in text_shares and food_logs:
+'created_at': (datetime.now() - timedelta(days=6-day)).isoformat()
+# Change '6-day' to adjust the date range
+```
+
+#### **For Different Content**
+```python
+# Modify text_shares content array with new Chinese text
+# Modify food_logs detected_foods with new food items
+# Modify demo_images array with different image paths
+```
+
+### **File Locations**
+- **Script Template**: `create_test77_service_role.py`
+- **Demo Images**: `frontend/public/demo-images/` (18 images available)
+- **Service Role Key**: `frontend/.env.local`
+- **Database Schema**: `scripts/setup_database.sql`
+
+### **Verification**
+After running the script, verify data creation:
+1. **Supabase Dashboard** → Check `text_shares`, `food_logs`, `quiz_responses` tables
+2. **Web App** → Login as test user and check:
+   - `/records` page shows 6 days of activity
+   - `/buddyshare` page shows text shares and food logs
+   - Quiz scores appear in progress tracking
+
+### **Future Enhancements**
+- [ ] Create script for multiple users at once
+- [ ] Add more diverse demo food images
+- [ ] Create script for different activity patterns (e.g., some users missing certain days)
+- [ ] Add script for creating group chat test messages
+- [ ] Create script for testing edge cases (empty content, invalid data)
+
+---
+
 ## 🚀 Next Steps
 
 ### **Immediate (Testing Phase):**

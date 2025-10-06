@@ -105,9 +105,28 @@ export default function ShareCard({ share, onCommentSubmit, onReactionToggle, cu
           </div>
         ) : (
           <div className="flex gap-4 items-center">
-            <div className="w-16 h-16 bg-orange-200 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
-              🍽️
-            </div>
+            {share.food_image_url ? (
+              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                <img 
+                  src={share.food_image_url} 
+                  alt={share.food_name || '食物照片'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to emoji if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<div class="w-full h-full bg-orange-200 rounded-lg flex items-center justify-center text-2xl">🍽️</div>';
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 bg-orange-200 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
+                🍽️
+              </div>
+            )}
             <div className="flex-1">
               <h4 className="font-medium text-gray-900 text-sm mb-1">{share.food_name || '食物記錄'}</h4>
               <p className="text-xs text-gray-500">{share.content}</p>

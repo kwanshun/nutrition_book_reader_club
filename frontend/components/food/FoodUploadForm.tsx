@@ -143,11 +143,11 @@ export default function FoodUploadForm({ onAnalysisComplete }: FoodUploadFormPro
       ) : (
         <div>
           {/* Image Preview */}
-          <div className="relative mb-4">
+          <div className="relative mb-6">
             <img
               src={imageSrc}
               alt="Food preview"
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-64 object-cover rounded-lg shadow-md"
             />
             {!isAnalyzing && (
               <button
