@@ -187,27 +187,35 @@ export default function RecordsPage() {
         {/* Statistics Summary */}
         <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="space-y-3">
-            {/* Share Stats (Empty circle) */}
+            {/* Share Stats Button */}
             <button
               onClick={fetchAllShares}
-              className="flex items-center space-x-3 w-full text-left hover:bg-gray-50 p-2 -m-2 rounded-lg transition-colors"
+              className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <div className="w-8 h-8 border-2 border-gray-800 rounded-full flex items-center justify-center flex-shrink-0"></div>
               <span className="text-gray-700">學習打咭</span>
               <span className="text-gray-900 font-medium ml-auto">{stats.shareDays} 天</span>
+              <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
 
-            {/* Food Log Stats (Filled gray circle) */}
-            <div className="flex items-center space-x-3 p-2 -m-2">
+            {/* Food Log Stats Button */}
+            <button
+              onClick={() => alert('Coming soon!')}
+              className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
               <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
               <span className="text-gray-700">記錄食物</span>
               <span className="text-gray-900 font-medium ml-auto">
                 {stats.foodLogDays} 天 / {stats.foodLogTotal} 次
               </span>
-            </div>
+              <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
 
-            {/* Quiz Stats (Computer icon) */}
-            <div className="flex items-center space-x-3">
+            {/* Quiz Stats Button */}
+            <button
+              onClick={() => alert('Coming soon!')}
+              className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
               <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl">🖥️</span>
               </div>
@@ -215,7 +223,8 @@ export default function RecordsPage() {
               <span className="text-gray-900 font-medium ml-auto">
                 {stats.quizDays} 天 / {stats.quizTotal} 次
               </span>
-            </div>
+              <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
           </div>
         </div>
 
