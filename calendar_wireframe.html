@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Icon Wireframe</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .wireframe-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            justify-items: center;
+        }
+        .calendar-day {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 28px;
+            font-weight: 500;
+            position: relative;
+        }
+        .day-label {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.4;
+        }
+        
+        /* --- Icon Styles --- */
+
+        .date-number {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 1. Normal Date */
+        .normal-date {
+            color: #333;
+        }
+
+        /* 2. Current Date */
+        .current-date .date-number {
+            color: #e53e3e; /* red */
+        }
+
+        /* 3. Text Share (Dashed Circle) */
+        .text-share::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 2px dashed #333;
+            border-radius: 50%;
+        }
+
+        /* 4. Text + Food Share (Solid Outer, Dashed Inner) */
+        .text-food-share::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 2px dashed #333;
+            border-radius: 50%;
+        }
+        .text-food-share::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #333;
+            border-radius: 50%;
+        }
+
+
+        /* 5. All 3 Activities (Yellow Glow/Border) */
+        .all-activities {
+             border: 3px solid #f6e05e; /* yellow */
+             border-radius: 50%;
+        }
+        .all-activities::before {
+            content: '';
+            position: absolute;
+            width: 65%;
+            height: 65%;
+            border: 2px dashed #333;
+            border-radius: 50%;
+        }
+        .all-activities::after {
+            content: '';
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            border: 2px solid #333;
+            border-radius: 50%;
+        }
+
+        /* --- Summary Styles --- */
+        .summary-section {
+            margin-top: 50px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .summary-item {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .summary-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 15px;
+            position: relative;
+        }
+        .summary-label {
+            color: #333;
+        }
+        .summary-days {
+            margin-left: auto;
+            color: #555;
+            font-weight: 500;
+        }
+        .summary-arrow {
+            margin-left: 10px;
+            color: #a0aec0;
+        }
+
+        /* Dashed Circle for Text Share */
+        .summary-text-share::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #333;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        /* Solid Circle for Food Log */
+        .summary-food-log::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #333;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        
+        /* Yellow Ring for Quiz */
+        .summary-quiz {
+            border: 3px solid #f6e05e; /* yellow */
+            border-radius: 50%;
+        }
+        .summary-quiz::before {
+            content: '';
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #333;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="wireframe-container">
+        <h1>Calendar & Summary Icon System</h1>
+        
+        <!-- Calendar Section -->
+        <div class="calendar-grid">
+            
+            <!-- State 1: Normal Date -->
+            <div class="calendar-day">
+                <div class="icon-container normal-date">
+                    <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Normal Date</div>
+            </div>
+
+            <!-- State 2: Current Date -->
+            <div class="calendar-day">
+                <div class="icon-container current-date">
+                    <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Normal Date<br>Current Date</div>
+            </div>
+
+            <!-- State 3: Text Share -->
+            <div class="calendar-day">
+                <div class="icon-container text-share">
+                    <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Text Share</div>
+            </div>
+
+            <!-- State 4: Text Share + Food Share -->
+            <div class="calendar-day">
+                <div class="icon-container text-food-share">
+                     <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Text Share<br>Food Share</div>
+            </div>
+
+            <!-- State 5: All 3 Activities -->
+            <div class="calendar-day">
+                <div class="icon-container all-activities">
+                    <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Text Share<br>Food Share<br>Quiz Done</div>
+            </div>
+            
+            <!-- State 6: All 3 Activities + Current Date -->
+            <div class="calendar-day">
+                <div class="icon-container all-activities current-date">
+                    <span class="date-number">1</span>
+                </div>
+                <div class="day-label">Text Share<br>Food Share<br>Quiz Done<br>Current Date</div>
+            </div>
+
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="summary-item">
+                <div class="summary-icon summary-text-share"></div>
+                <div class="summary-label">學習打咭</div>
+                <div class="summary-days">5 天</div>
+                <div class="summary-arrow">&gt;</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-icon summary-food-log"></div>
+                <div class="summary-label">記錄食物</div>
+                <div class="summary-days">4 天</div>
+                <div class="summary-arrow">&gt;</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-icon summary-quiz"></div>
+                <div class="summary-label">測一測</div>
+                <div class="summary-days">5 天</div>
+                <div class="summary-arrow">&gt;</div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

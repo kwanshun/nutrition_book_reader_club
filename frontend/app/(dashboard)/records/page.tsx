@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import DashboardHeader from '@/components/layout/DashboardHeader';
 import { useUserProgress, DayActivity } from '@/lib/hooks/useUserProgress';
 import { createClient } from '@/lib/supabase/client';
+import ShareCard from '@/components/buddyshare/ShareCard';
+import TextShareCard from '@/components/buddyshare/TextShareCard';
+import CalendarDayIcon from '@/components/records/CalendarDayIcon';
 
 interface CalendarDay {
   dayOfMonth: number;
@@ -229,33 +233,15 @@ export default function RecordsPage() {
           {/* Calendar Grid */}
           <div className="grid grid-cols-7 gap-1 text-center">
             {calendarDays.map((day, index) => (
-              <div 
-                key={index} 
-                className={`py-2 rounded-lg relative ${day.isCurrentMonth ? '' : 'text-gray-300'}`}
-              >
+              <div key={index} className={`py-2 relative`}>
                 {day.isCurrentMonth && (
-                 <>
-                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full relative ${
-                     day.activity?.share && day.activity?.foodLog 
-                       ? 'border-2 border-gray-800 bg-gray-400' // Both activities: gray circle with black border
-                       : day.activity?.share 
-                         ? 'border-2 border-gray-800 bg-white' // Text share only: empty circle with black border
-                         : day.activity?.foodLog 
-                           ? 'bg-gray-400' // Food log only: gray filled circle
-                           : '' // No activities: no styling
-                   }`}>
-                     {day.dayOfMonth}
-                     {isToday(day.dayOfMonth, currentDate) && (
-                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-red-500"></div>
-                     )}
-                     {/* Quiz indicator overlay */}
-                     {day.activity?.quiz && (
-                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center shadow-sm">
-                         <span className="text-xs text-white">🖥️</span>
-                       </div>
-                     )}
-                   </div>
-                 </>
+                  <CalendarDayIcon
+                    dayOfMonth={day.dayOfMonth}
+                    hasShare={day.activity?.share}
+                    hasFoodLog={day.activity?.foodLog}
+                    hasQuiz={day.activity?.quiz}
+                    isCurrent={isToday(day.dayOfMonth, currentDate)}
+                  />
                 )}
               </div>
             ))}
@@ -270,7 +256,7 @@ export default function RecordsPage() {
               onClick={fetchAllShares}
               className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
-              <div className="w-8 h-8 border-2 border-gray-800 rounded-full flex items-center justify-center flex-shrink-0"></div>
+              <div className="w-10 h-10 rounded-full border-2 border-black flex-shrink-0"></div>
               <span className="text-gray-700">學習打咭</span>
               <span className="text-gray-900 font-medium ml-auto">{stats.shareDays} 天</span>
               <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
@@ -281,7 +267,9 @@ export default function RecordsPage() {
               onClick={fetchAllFoodLogs}
               className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
+              <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                <Image src="/fish.png" alt="Food Log" width={40} height={40} className="object-contain" />
+              </div>
               <span className="text-gray-700">記錄食物</span>
               <span className="text-gray-900 font-medium ml-auto">
                 {stats.foodLogDays} 天
@@ -294,8 +282,8 @@ export default function RecordsPage() {
               onClick={fetchAllQuizResponses}
               className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
-              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">🖥️</span>
+              <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                <Image src="/tick.png" alt="Quiz" width={40} height={40} className="object-contain" />
               </div>
               <span className="text-gray-700">測一測</span>
               <span className="text-gray-900 font-medium ml-auto">

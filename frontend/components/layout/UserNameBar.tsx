@@ -6,7 +6,7 @@ export default function UserNameBar() {
   const { profile, loading } = useUserProfile();
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-12 bg-gray-800 text-white flex items-center justify-between px-4 z-50 max-w-md mx-auto">
+    <div className="fixed top-0 left-0 right-0 h-12 bg-black text-white flex items-center justify-between px-4 z-50 max-w-md mx-auto">
       {/* Left side - Logo and Organization */}
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-xs">

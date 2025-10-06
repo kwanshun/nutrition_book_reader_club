@@ -76,6 +76,8 @@ export function useUserProgress() {
           const calendarDate = new Date(currentYear, currentMonth, programDay);
           const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
           
+          console.log(`Quiz response: Day ${programDay} -> Calendar Date ${date}`);
+          
           if (!activityMap.has(date)) {
             activityMap.set(date, { date, share: false, foodLog: false, quiz: true });
           } else {

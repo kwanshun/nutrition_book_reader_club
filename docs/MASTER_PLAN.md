@@ -52,10 +52,46 @@ The `/records` page displays three activity summaries that are sourced from spec
 - **Program Day Mapping:** Each quiz response is tagged with `day_number` (1-21) representing the Program Day
 
 #### **Calendar Display Integration**
-- **Activity Icons:** Calendar shows activity indicators on specific calendar dates
-- **Icon Types:** Empty circle (text share), gray circle (food log), blue square (quiz)
-- **Date Mapping:** Program Day activities are mapped to their corresponding calendar dates for visual display
-- **Summary Consistency:** The summary counts match the detailed modal data when clicking each activity button
+- **Activity Icons:** The calendar on the `/records` page displays a simple, modular icon system to give users an at-a-glance overview of their activities.
+- **Visual Reference**: The definitive visual guide for these icons is `records_wireframe.html` and `records_page_wireframe.html`.
+- **Icon Design Philosophy**: Each activity has its own independent visual indicator. Icons appear **below the date number**, not overlapping it.
+
+**Icon States:**
+
+| State | Activities Completed | Visual Representation |
+| :--- | :--- | :--- |
+| 1 | Text Share | A **solid black circle** around the date number. |
+| 2 | Food Log | A **red fish icon** (fish.jpg) displayed below the number. |
+| 3 | Quiz Done | A **black pencil icon** (tick.jpg) displayed below the number. |
+| 4 | Current Date | The day's number is colored **red**. This can be combined with any of the states above. |
+
+**Combination Examples:**
+
+| Combination | Visual Representation |
+| :--- | :--- |
+| Text Share + Food Log | Circle around number + fish icon below |
+| Text Share + Quiz | Circle around number + pencil icon below |
+| Food Log + Quiz | Fish icon + pencil icon (side-by-side) below number |
+| All 3 Activities | Circle around number + fish icon + pencil icon below |
+
+**Implementation Details:**
+- **Text Share Circle**: 2px solid black border, placed around the date number using absolute positioning
+- **Food Log Icon**: `/fish.png` image (18x18px on calendar, 40x40px in summary) - transparent background
+- **Quiz Icon**: `/tick.png` image (18x18px on calendar, 40x40px in summary) - transparent background
+- **Icon Spacing**: Icons below the number have 4px gap between them when multiple icons exist
+
+**Summary Section Icons:**
+- **學習打咭 (Text Share)**: Hollow circle (40px diameter, 2px border)
+- **記錄食物 (Food Log)**: Fish image from `/fish.png` (transparent background)
+- **測一測 (Quiz)**: Pencil image from `/tick.png` (transparent background)
+
+- **Summary Consistency:** The summary counts match the detailed modal data when clicking each activity button.
+
+**✅ Advantages of New Design:**
+- **Quiz activities are now independently visible** - Users can see quiz completion even without text shares or food logs
+- **Simpler visual hierarchy** - Each activity has a distinct, non-overlapping indicator
+- **Better scalability** - Easy to add new activity types in the future
+- **Clearer at-a-glance view** - Users can quickly identify which activities they've completed each day
 
 ---
 
@@ -608,6 +644,13 @@ This section provides a complete guide for creating test data for users, includi
 2. **User Account**: Target user must exist in `auth.users` table
 3. **Group Membership**: User must be a member of a group in `group_members` table
 4. **Demo Images**: 18 demo food images available in `frontend/public/demo-images/`
+
+#### **Critical: Date Alignment for Calendar View**
+**IMPORTANT:** For test data (especially `food_logs` and `text_shares`) to appear correctly on the `/records` page calendar, their `created_at` timestamps **MUST** correspond to the **current year and month**.
+
+- **Root Cause:** The calendar view is always generated for the current month and year (e.g., October 2025). If test data has timestamps from a previous year (e.g., October 2024), the date-matching logic will fail, and the activity icons will not be displayed.
+- **Solution:** When creating or modifying test data, ensure the year component of the timestamp matches the current year.
+- **Example Fix:** The script `scripts/update_food_log_dates.py` was used to solve this exact issue by updating all 2024 food logs to 2025. This script can be used as a template if the problem occurs again.
 
 ### **Step-by-Step Process**
 

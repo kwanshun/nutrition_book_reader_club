@@ -25,3 +25,28 @@ body {
     @apply bg-white rounded-lg shadow-sm p-4 border border-gray-200;
   }
 }
+
+/* Calendar Day Icons - Must be outside @layer to work properly */
+.calendar-day-icon-food::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid black;
+  border-radius: 9999px;
+}
+
+.calendar-day-icon-share::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dashed black;
+  border-radius: 9999px;
+}
+
+.calendar-day-icon-share-with-food::before {
+  content: '';
+  position: absolute;
+  inset: 0.25rem;
+  border: 2px dashed black;
+  border-radius: 9999px;
+}
