@@ -159,9 +159,8 @@ export default function QuizPage() {
     questions = questions.questions;
   }
 
-  // Validate that the quiz data matches the expected day
-  if (quizData.day_number && quizData.day_number !== day) {
-    console.error('🔍 QuizPage: MISMATCH DETECTED! Expected day:', day, 'but quiz is for day:', quizData.day_number);
+  // Validate that the quiz data matches the expected day, but only if not loading
+  if (!loading && quizData.day_number && quizData.day_number !== day) {
     return (
       <div>
         <DashboardHeader period={21} />

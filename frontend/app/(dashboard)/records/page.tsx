@@ -2,12 +2,47 @@
 
 import { useState } from 'react';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import { useUserProgress } from '@/lib/hooks/useUserProgress';
+import { useUserProgress, DayActivity } from '@/lib/hooks/useUserProgress';
 import { createClient } from '@/lib/supabase/client';
 
+interface CalendarDay {
+  dayOfMonth: number;
+  isCurrentMonth: boolean;
+  activity: DayActivity | null;
+}
+
+function getCalendarDays(date: Date, activities: DayActivity[]): CalendarDay[] {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+
+  const days: CalendarDay[] = [];
+  const startingDayOfWeek = firstDayOfMonth.getDay();
+
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    // Add placeholder for days from previous month
+    days.push({ dayOfMonth: 0, isCurrentMonth: false, activity: null });
+  }
+
+  for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const activity = activities.find(a => a.date === dateStr) || null;
+    days.push({ dayOfMonth: day, isCurrentMonth: true, activity });
+  }
+
+  return days;
+}
+
+function isToday(day: number, currentDate: Date): boolean {
+  const today = new Date();
+  return today.getFullYear() === currentDate.getFullYear() &&
+         today.getMonth() === currentDate.getMonth() &&
+         today.getDate() === day;
+}
 
 export default function RecordsPage() {
-  const { activities, stats, loading, error } = useUserProgress();
+  const { activities, stats, loading, error, refreshProgress } = useUserProgress();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // New state for "All Shares" modal
@@ -37,13 +72,7 @@ export default function RecordsPage() {
   const startingDayOfWeek = firstDayOfMonth.getDay();
 
   // Create array of day numbers
-  const calendarDays: (number | null)[] = [];
-  for (let i = 0; i < startingDayOfWeek; i++) {
-    calendarDays.push(null);
-  }
-  for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.push(day);
-  }
+  const calendarDays = getCalendarDays(currentDate, activities);
 
   // Check if a date has activity
   const getActivityForDate = (day: number) => {
@@ -198,47 +227,26 @@ export default function RecordsPage() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((day, index) => {
-              if (day === null) {
-                return <div key={`empty-${index}`} className="aspect-square" />;
-              }
-
-              const activity = getActivityForDate(day);
-              const hasAnyActivity = activity && (activity.hasQuiz || activity.hasShare || activity.hasFoodLog);
-
-              return (
-                <div
-                  key={day}
-                  className="aspect-square relative"
-                >
-                  {/* Day number */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm">{day}</span>
-                  </div>
-
-                  {/* Activity indicators */}
-                  {hasAnyActivity && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center space-y-0.5">
-                      {/* Filled gray circle = Food logging */}
-                      {activity.hasFoodLog && (
-                        <div className="absolute inset-1 bg-gray-300 rounded-full" />
-                      )}
-                      {/* Empty circle with border = Text share (學習打咭) */}
-                      {activity.hasShare && (
-                        <div className="absolute inset-1 border-2 border-gray-800 rounded-full" />
-                      )}
-                      {/* Computer icon = Quiz (測一測) */}
-                      {activity.hasQuiz && (
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                          <div className="text-xs">🖥️</div>
-                        </div>
-                      )}
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {calendarDays.map((day, index) => (
+              <div 
+                key={index} 
+                className={`py-2 rounded-lg relative ${day.isCurrentMonth ? '' : 'text-gray-300'}`}
+              >
+                {day.isCurrentMonth && (
+                 <>
+                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${isToday(day.dayOfMonth, currentDate) ? 'border-2 border-black' : ''}`}>
+                     {day.dayOfMonth}
+                   </div>
+                    <div className="flex justify-center items-center space-x-1 mt-1 absolute bottom-0 w-full">
+                      {day.activity?.share && <div className="w-2 h-2 border-2 border-gray-800 rounded-full" title="Text Share"></div>}
+                      {day.activity?.foodLog && <div className="w-2 h-2 bg-gray-400 rounded-full" title="Food Log"></div>}
+                      {day.activity?.quiz && <span className="text-xs" title="Quiz">🖥️</span>}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                 </>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -264,7 +272,7 @@ export default function RecordsPage() {
               <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
               <span className="text-gray-700">記錄食物</span>
               <span className="text-gray-900 font-medium ml-auto">
-                {stats.foodLogDays} 天 / {stats.foodLogTotal} 次
+                {stats.foodLogDays} 天
               </span>
               <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
@@ -279,7 +287,7 @@ export default function RecordsPage() {
               </div>
               <span className="text-gray-700">測一測</span>
               <span className="text-gray-900 font-medium ml-auto">
-                {stats.quizDays} 天 / {stats.quizTotal} 次
+                {stats.quizDays} 天
               </span>
               <svg className="w-5 h-5 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
