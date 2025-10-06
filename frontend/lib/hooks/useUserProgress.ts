@@ -94,7 +94,7 @@ export function useUserProgress() {
       // Calculate stats based on unique days
       const shareDays = new Set(textShares?.map(item => getCalendarDate(item.created_at))).size;
       const foodLogDays = new Set(foodLogs?.map(item => getCalendarDate(item.created_at))).size;
-      const quizDays = new Set(quizResponses?.map(item => item.day_number)).size; // Count unique day_number for quizzes
+      const quizDays = new Set(quizResponses?.map(item => getCalendarDate(item.answered_at))).size; // Count unique calendar days for quizzes
 
       setStats({
         shareDays,

@@ -19,6 +19,46 @@ A mobile webapp for managing a 21-day nutrition book reading club with ~100 memb
 
 ---
 
+## 🧠 Core Concepts
+
+### Program Day Logic
+The entire 21-day program operates on a **"Program Day"** system, which is distinct from the calendar date. 
+- **"Program Day 1"** is defined as the first day of the current calendar month.
+- Subsequent days are counted sequentially (e.g., Oct 2nd is Day 2, Oct 3rd is Day 3, up to Day 21). 
+- This "Program Day" is the primary key used for tracking all user activities—content viewing, quiz completion, text/food sharing—ensuring a consistent experience for all users starting in the same month. The Records page then maps this "Program Day" back to the corresponding calendar date for display.
+
+### Activity Summary Data Sources
+The `/records` page displays three activity summaries that are sourced from specific database tables and calculated based on **Program Day** (not calendar date):
+
+#### **1. 學習打咭 (Text Share) Summary**
+- **Source Table:** `text_shares`
+- **Key Fields:** `user_id`, `day_number`, `content`, `created_at`
+- **Calculation:** Count unique calendar dates where `text_shares` exist for the user
+- **Display:** Shows "X 天" (X days) representing unique days with text sharing activity
+- **Program Day Mapping:** Each text share is tagged with `day_number` (1-21) representing the Program Day
+
+#### **2. 記錄食物 (Food Log) Summary**
+- **Source Table:** `food_logs` + `food_log_items`
+- **Key Fields:** `user_id`, `created_at`, `user_input`, `image_url`
+- **Calculation:** Count unique calendar dates where `food_logs` exist for the user
+- **Display:** Shows "X 天" (X days) representing unique days with food logging activity
+- **Program Day Mapping:** Calculated from `created_at` date using the same logic as Program Day calculation
+
+#### **3. 測一測 (Quiz) Summary**
+- **Source Table:** `quiz_responses`
+- **Key Fields:** `user_id`, `day_number`, `score`, `total_questions`, `answered_at`
+- **Calculation:** Count unique calendar dates where `quiz_responses` exist for the user
+- **Display:** Shows "X 天" (X days) representing unique days with quiz completion
+- **Program Day Mapping:** Each quiz response is tagged with `day_number` (1-21) representing the Program Day
+
+#### **Calendar Display Integration**
+- **Activity Icons:** Calendar shows activity indicators on specific calendar dates
+- **Icon Types:** Empty circle (text share), gray circle (food log), blue square (quiz)
+- **Date Mapping:** Program Day activities are mapped to their corresponding calendar dates for visual display
+- **Summary Consistency:** The summary counts match the detailed modal data when clicking each activity button
+
+---
+
 ## 🚀 Quick Start
 
 ### Current Status

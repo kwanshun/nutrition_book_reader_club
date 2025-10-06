@@ -241,7 +241,7 @@ export default function RecordsPage() {
                     <div className="flex justify-center items-center space-x-1 mt-1 absolute bottom-0 w-full">
                       {day.activity?.share && <div className="w-2 h-2 border-2 border-gray-800 rounded-full" title="Text Share"></div>}
                       {day.activity?.foodLog && <div className="w-2 h-2 bg-gray-400 rounded-full" title="Food Log"></div>}
-                      {day.activity?.quiz && <span className="text-xs" title="Quiz">🖥️</span>}
+                      {day.activity?.quiz && <div className="w-2 h-2 bg-blue-500 rounded-sm" title="Quiz"></div>}
                     </div>
                  </>
                 )}
@@ -323,14 +323,14 @@ export default function RecordsPage() {
                     {allShares.length > 0 ? (
                       <div className="space-y-3">
                         {allShares.map((share: any) => (
-                          <div key={share.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                             <div className="flex justify-between items-baseline mb-2">
-                               <p className="font-semibold text-sm">第 {share.day_number} 天</p>
-                               <p className="text-xs text-gray-500">
+                          <div key={share.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex justify-between items-center mb-3">
+                              <h3 className="text-lg font-bold text-blue-600">Day {share.day_number}</h3>
+                              <p className="text-xs text-gray-500">
                                 {new Date(share.created_at).toLocaleDateString('zh-TW')}
                               </p>
-                             </div>
-                            <p className="text-gray-700 whitespace-pre-wrap">{share.content}</p>
+                            </div>
+                            <p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">{share.content}</p>
                           </div>
                         ))}
                       </div>
@@ -371,28 +371,43 @@ export default function RecordsPage() {
                   <>
                     {allFoodLogs.length > 0 ? (
                       <div className="space-y-4">
-                        {allFoodLogs.map((log: any) => (
-                          <div key={log.id} className="flex items-start space-x-4 p-3 border border-gray-200 rounded-lg">
-                            <img 
-                              src={log.image_url} 
-                              alt="Food log" 
-                              className="w-24 h-24 object-cover rounded-md flex-shrink-0"
-                            />
-                            <div className="flex-grow">
-                              <p className="text-xs text-gray-500 mb-2">
-                                {new Date(log.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
-                              </p>
-                              <ul className="space-y-1">
-                                {log.food_log_items.map((item: any) => (
-                                  <li key={item.id} className="text-sm text-gray-800">
-                                    <span className="font-semibold">{item.name}</span>
-                                    {item.portion && <span className="text-gray-600"> - {item.portion}</span>}
-                                  </li>
-                                ))}
-                              </ul>
+                        {allFoodLogs.map((log: any) => {
+                          // Calculate Program Day from the date
+                          const logDate = new Date(log.created_at);
+                          const currentMonth = logDate.getMonth();
+                          const currentYear = logDate.getFullYear();
+                          const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+                          const daysSinceStart = Math.floor((logDate.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
+                          const programDay = Math.min(daysSinceStart + 1, 21);
+                          
+                          return (
+                            <div key={log.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <div className="flex justify-between items-center mb-3">
+                                <h3 className="text-lg font-bold text-green-600">Day {programDay}</h3>
+                                <p className="text-xs text-gray-500">
+                                  {logDate.toLocaleDateString('zh-TW')}
+                                </p>
+                              </div>
+                              <div className="flex items-start space-x-4">
+                                <img 
+                                  src={log.image_url} 
+                                  alt="Food log" 
+                                  className="w-20 h-20 object-cover rounded-md flex-shrink-0"
+                                />
+                                <div className="flex-grow">
+                                  <ul className="space-y-1">
+                                    {log.food_log_items && log.food_log_items.map((item: any) => (
+                                      <li key={item.id} className="text-sm text-gray-800">
+                                        <span className="font-semibold">{item.name}</span>
+                                        {item.portion && <span className="text-gray-600"> - {item.portion}</span>}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="text-gray-500 text-center py-8">沒有食物記錄</p>
@@ -432,13 +447,21 @@ export default function RecordsPage() {
                     {allQuizResponses.length > 0 ? (
                       <div className="space-y-3">
                         {allQuizResponses.map((response: any) => (
-                          <div key={response.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                            <span className="font-semibold text-gray-800">
-                              分數: {response.score}/{response.total_questions}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {new Date(response.answered_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </span>
+                          <div key={response.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex justify-between items-center mb-3">
+                              <h3 className="text-lg font-bold text-purple-600">Day {response.day_number}</h3>
+                              <p className="text-xs text-gray-500">
+                                {new Date(response.answered_at).toLocaleDateString('zh-TW')}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-center">
+                              <span className="text-2xl font-bold text-gray-800">
+                                {response.score}/{response.total_questions}
+                              </span>
+                              <span className="ml-2 text-sm text-gray-600">
+                                ({Math.round((response.score / response.total_questions) * 100)}%)
+                              </span>
+                            </div>
                           </div>
                         ))}
                       </div>
