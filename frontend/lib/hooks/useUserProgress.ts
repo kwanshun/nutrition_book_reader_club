@@ -109,6 +109,7 @@ export function useUserProgress() {
       const errorMsg = err.message;
       console.error('Error fetching user progress:', errorMsg);
       setError(errorMsg);
+    } finally {
       setLoading(false);
     }
   }, [user]);
