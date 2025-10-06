@@ -140,7 +140,6 @@ export default function ShareCard({ share, onCommentSubmit, onReactionToggle, cu
           </div>
           <div className="text-right">
             <div className="text-sm font-medium text-gray-700">{share.user_name}</div>
-            <div className="text-xs text-gray-500">分享了今天的食物</div>
           </div>
         </div>
       </div>

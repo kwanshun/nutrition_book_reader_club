@@ -7,7 +7,7 @@ export default function HomePage() {
     { href: '/content/today', icon: '📅', label: '今天內容' },
     { href: '/share', icon: '✏️', label: '分享心得' },
     { href: '/quiz', icon: '🖥️', label: '測一測' },
-    { href: '/food', icon: '🍴📷', label: '食過什麼' },
+    { href: '/food', icon: '🍴', label: '食過什麼' },
     { href: '/records', icon: '📊', label: '21天記錄' },
     { href: '/buddyshare', icon: '👥', label: '同學分享' },
   ];
