@@ -126,7 +126,7 @@ export default function ChatPage() {
     <div className="flex flex-col h-screen">
       <DashboardHeader period={21} />
       
-      <main className="flex-1 flex flex-col max-w-md mx-auto w-full bg-white shadow-sm">
+      <main className="flex-1 flex flex-col max-w-md mx-auto w-full bg-white shadow-sm pb-20">
         {/* Chat Header */}
         <div className="bg-blue-600 text-white px-4 py-3 border-b border-blue-700">
           <h1 className="text-xl font-bold">💬 {groupName || '群組聊天'}</h1>
@@ -134,7 +134,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 pb-20">
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-gray-500">載入訊息中...</p>
@@ -164,9 +164,10 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input Area */}
-        <ChatInput onSend={sendMessage} disabled={loading} />
       </main>
+      
+      {/* Fixed Input Area */}
+      <ChatInput onSend={sendMessage} disabled={loading} />
     </div>
   );
 }

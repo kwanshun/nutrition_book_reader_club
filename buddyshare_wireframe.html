@@ -3,592 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuddyShare - 夥伴分享</title>
+    <title>BuddyShare Page Wireframe - Food Log Cards</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8fafc;
-            color: #1f2937;
-            line-height: 1.6;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
         }
         
         .container {
-            max-width: 600px;
+            max-width: 400px;
             margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
             padding: 20px;
-            padding-top: 80px; /* Space for fixed header */
         }
         
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
         
-        .header h1 {
-            font-size: 20px;
-            font-weight: 600;
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
         }
         
-        .header p {
+        .page-subtitle {
             font-size: 14px;
-            opacity: 0.9;
-            margin-top: 2px;
+            color: #6b7280;
         }
         
-        .feed-item {
-            background: white;
+        .food-log-card {
+            background-color: #f9fafb;
             border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.2s ease;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
         }
         
-        .feed-item:hover {
-            transform: translateY(-2px);
-        }
-        
-        .share-header {
-            padding: 16px 20px 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        
-        .user-info {
+        .card-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .day-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #059669;
+        }
+        
+        .date {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .card-content {
+            display: flex;
             gap: 12px;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .user-details h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        
-        .user-details p {
-            font-size: 13px;
-            color: #64748b;
-        }
-        
-        .share-type {
-            margin-left: auto;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .share-type.text {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .share-type.food {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .share-content {
-            padding: 16px 20px;
-        }
-        
-        .text-content {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #374151;
-        }
-        
-        .food-content {
-            display: flex;
-            gap: 16px;
-            align-items: center;
         }
         
         .food-image {
             width: 80px;
             height: 80px;
             border-radius: 8px;
-            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #e5e7eb;
+        }
+        
+        .food-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .food-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .food-item {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        
+        .food-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .food-name {
+            font-weight: 500;
+        }
+        
+        .food-portion {
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .placeholder-image {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 32px;
-            flex-shrink: 0;
-        }
-        
-        .food-details h4 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #1f2937;
-        }
-        
-        .food-details p {
-            font-size: 13px;
-            color: #6b7280;
-        }
-        
-        .share-footer {
-            padding: 12px 20px;
-            border-top: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .reaction-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-size: 14px;
-            color: #6b7280;
-        }
-        
-        .reaction-btn:hover {
-            background: #f3f4f6;
-        }
-        
-        .reaction-btn.liked {
-            color: #059669;
-        }
-        
-        .comment-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-size: 14px;
-            color: #6b7280;
-        }
-        
-        .comment-btn:hover {
-            background: #f3f4f6;
-        }
-        
-        .timestamp {
-            margin-left: auto;
-            font-size: 12px;
             color: #9ca3af;
+            font-size: 12px;
         }
         
-        .comments-section {
-            border-top: 1px solid #f1f5f9;
-            padding: 16px 20px;
-            background: #fafbfc;
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
         }
         
-        .comment {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e5e7eb;
+        .social-stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
         }
         
-        .comment:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #6b7280;
         }
         
-        .comment-header {
+        .user-info {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 6px;
         }
         
-        .comment-avatar {
+        .user-avatar {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #10b981, #059669);
+            background-color: #3b82f6;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            font-weight: bold;
             font-size: 12px;
-            font-weight: 600;
         }
         
-        .comment-author {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .comment-time {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-        
-        .comment-content {
-            font-size: 14px;
-            color: #4b5563;
-            margin-left: 32px;
-        }
-        
-        .comment-input {
+        .user-text {
             display: flex;
-            gap: 8px;
-            margin-top: 16px;
+            flex-direction: column;
         }
         
-        .comment-input input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 20px;
+        .user-name {
             font-size: 14px;
-            outline: none;
-        }
-        
-        .comment-input input:focus {
-            border-color: #667eea;
-        }
-        
-        .comment-submit {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .comment-submit:hover {
-            background: #5a67d8;
-        }
-        
-        .load-more {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .load-more-btn {
-            background: white;
-            border: 2px solid #e5e7eb;
-            color: #6b7280;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .load-more-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6b7280;
-        }
-        
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-        
-        .empty-state h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
+            font-weight: 500;
             color: #374151;
         }
         
-        .empty-state p {
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        @media (max-width: 640px) {
-            .container {
-                padding: 15px;
-                padding-top: 70px;
-            }
-            
-            .header {
-                padding: 12px 15px;
-            }
-            
-            .header h1 {
-                font-size: 18px;
-            }
-            
-            .feed-item {
-                margin-bottom: 15px;
-            }
-            
-            .share-header, .share-content, .share-footer {
-                padding: 12px 15px;
-            }
-            
-            .comments-section {
-                padding: 12px 15px;
-            }
+        .share-description {
+            font-size: 12px;
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🤝 BuddyShare</h1>
-        <p>看看夥伴們的分享，一起交流學習心得</p>
-    </div>
-
     <div class="container">
-        <!-- Text Share Example -->
-        <div class="feed-item">
-            <div class="share-header">
+        <div class="page-header">
+            <h1 class="page-title">👥 同學分享</h1>
+            <p class="page-subtitle">看看夥伴們的分享，一起交流學習心得</p>
+        </div>
+        
+        <!-- Food Log Card 1 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 1</span>
+                <span class="date">2024/10/1</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">燕麥粥</span>
+                        <span class="food-portion"> - 1碗 (約200g)</span>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-name">香蕉</span>
+                        <span class="food-portion"> - 1根 (約120g)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 0
+                    </div>
+                    <div class="social-item">
+                        💬 0
+                    </div>
+                </div>
                 <div class="user-info">
-                    <div class="avatar">小</div>
-                    <div class="user-details">
-                        <h3>小美</h3>
-                        <p>分享了第 6 天的學習心得</p>
+                    <div class="user-avatar">I</div>
+                    <div class="user-text">
+                        <span class="user-name">info</span>
+                        <span class="share-description">分享了今天的食物</span>
                     </div>
-                    <div class="share-type text">📝 文字分享</div>
-                </div>
-            </div>
-            
-            <div class="share-content">
-                <div class="text-content">
-                    今天學到了維生素B群的重要性！原來B群不只是提神，還能幫助代謝和神經系統運作。我決定每天多吃一些全穀類和綠葉蔬菜，確保攝取足夠的B群維生素。你們有什麼補充B群的好方法嗎？
-                </div>
-            </div>
-            
-            <div class="share-footer">
-                <button class="reaction-btn liked">
-                    <span>👍</span>
-                    <span>5</span>
-                </button>
-                <button class="comment-btn">
-                    <span>💬</span>
-                    <span>3</span>
-                </button>
-                <div class="timestamp">2 小時前</div>
-            </div>
-            
-            <div class="comments-section">
-                <div class="comment">
-                    <div class="comment-header">
-                        <div class="comment-avatar">大</div>
-                        <span class="comment-author">大華</span>
-                        <span class="comment-time">1 小時前</span>
-                    </div>
-                    <div class="comment-content">
-                        我最近也在研究B群！除了食物，我還會補充綜合維生素，效果還不錯👍
-                    </div>
-                </div>
-                
-                <div class="comment">
-                    <div class="comment-header">
-                        <div class="comment-avatar">阿</div>
-                        <span class="comment-author">阿明</span>
-                        <span class="comment-time">30 分鐘前</span>
-                    </div>
-                    <div class="comment-content">
-                        綠葉蔬菜真的很棒！我每天都會吃菠菜和花椰菜，天然的最好
-                    </div>
-                </div>
-                
-                <div class="comment-input">
-                    <input type="text" placeholder="寫下你的想法...">
-                    <button class="comment-submit">發送</button>
                 </div>
             </div>
         </div>
-
-        <!-- Food Share Example -->
-        <div class="feed-item">
-            <div class="share-header">
+        
+        <!-- Food Log Card 2 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 2</span>
+                <span class="date">2024/10/2</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">雞蛋</span>
+                        <span class="food-portion"> - 2顆 (約100g)</span>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-name">全麥吐司</span>
+                        <span class="food-portion"> - 2片 (約60g)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 2
+                    </div>
+                    <div class="social-item">
+                        💬 1
+                    </div>
+                </div>
                 <div class="user-info">
-                    <div class="avatar">王</div>
-                    <div class="user-details">
-                        <h3>王小明</h3>
-                        <p>分享了今天的午餐</p>
+                    <div class="user-avatar">T</div>
+                    <div class="user-text">
+                        <span class="user-name">test77</span>
+                        <span class="share-description">分享了今天的食物</span>
                     </div>
-                    <div class="share-type food">🍽️ 食物記錄</div>
-                </div>
-            </div>
-            
-            <div class="share-content">
-                <div class="food-content">
-                    <div class="food-image">🥗</div>
-                    <div class="food-details">
-                        <h4>健康蔬菜沙拉</h4>
-                        <p>今天的午餐</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="share-footer">
-                <button class="reaction-btn">
-                    <span>👍</span>
-                    <span>8</span>
-                </button>
-                <button class="comment-btn">
-                    <span>💬</span>
-                    <span>5</span>
-                </button>
-                <div class="timestamp">3 小時前</div>
-            </div>
-            
-            <div class="comments-section">
-                <div class="comment">
-                    <div class="comment-header">
-                        <div class="comment-avatar">李</div>
-                        <span class="comment-author">李小花</span>
-                        <span class="comment-time">2 小時前</span>
-                    </div>
-                    <div class="comment-content">
-                        看起來好健康！請問你用了什麼醬料？我想學做😋
-                    </div>
-                </div>
-                
-                <div class="comment">
-                    <div class="comment-header">
-                        <div class="comment-avatar">王</div>
-                        <span class="comment-author">王小明</span>
-                        <span class="comment-time">1 小時前</span>
-                    </div>
-                    <div class="comment-content">
-                        我用的是檸檬汁+橄欖油+一點蜂蜜，很清爽不膩！
-                    </div>
-                </div>
-                
-                <div class="comment-input">
-                    <input type="text" placeholder="寫下你的想法...">
-                    <button class="comment-submit">發送</button>
                 </div>
             </div>
         </div>
-
-        <!-- Another Text Share -->
-        <div class="feed-item">
-            <div class="share-header">
-                <div class="user-info">
-                    <div class="avatar">陳</div>
-                    <div class="user-details">
-                        <h3>陳小華</h3>
-                        <p>分享了第 5 天的學習心得</p>
+        
+        <!-- Food Log Card 3 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 3</span>
+                <span class="date">2024/10/3</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">鮭魚</span>
+                        <span class="food-portion"> - 1片 (約150g)</span>
                     </div>
-                    <div class="share-type text">📝 文字分享</div>
+                    <div class="food-item">
+                        <span class="food-name">蔬菜沙拉</span>
+                        <span class="food-portion"> - 1份 (約100g)</span>
+                    </div>
                 </div>
             </div>
-            
-            <div class="share-content">
-                <div class="text-content">
-                    今天讀到蛋白質的重要性，原來不只是運動員需要，每個人每天都需要足夠的蛋白質來維持身體機能。我開始注意每餐都要有優質蛋白質來源，雞蛋、豆腐、魚肉都是很好的選擇！
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 5
+                    </div>
+                    <div class="social-item">
+                        💬 3
+                    </div>
                 </div>
-            </div>
-            
-            <div class="share-footer">
-                <button class="reaction-btn">
-                    <span>👍</span>
-                    <span>7</span>
-                </button>
-                <button class="comment-btn">
-                    <span>💬</span>
-                    <span>0</span>
-                </button>
-                <div class="timestamp">5 小時前</div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-text">
+                        <span class="user-name">Andy</span>
+                        <span class="share-description">分享了今天的食物</span>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Load More Button -->
-        <div class="load-more">
-            <button class="load-more-btn">載入更多分享</button>
+        
+        <!-- Food Log Card 4 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 4</span>
+                <span class="date">2024/10/4</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">雞胸肉</span>
+                        <span class="food-portion"> - 1塊 (約120g)</span>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-name">糙米飯</span>
+                        <span class="food-portion"> - 1碗 (約150g)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 1
+                    </div>
+                    <div class="social-item">
+                        💬 0
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">M</div>
+                    <div class="user-text">
+                        <span class="user-name">Mary</span>
+                        <span class="share-description">分享了今天的食物</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Food Log Card 5 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 5</span>
+                <span class="date">2024/10/5</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">蔬菜湯</span>
+                        <span class="food-portion"> - 1碗 (約250g)</span>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-name">全麥麵包</span>
+                        <span class="food-portion"> - 1片 (約30g)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 3
+                    </div>
+                    <div class="social-item">
+                        💬 2
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">J</div>
+                    <div class="user-text">
+                        <span class="user-name">John</span>
+                        <span class="share-description">分享了今天的食物</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Food Log Card 6 -->
+        <div class="food-log-card">
+            <div class="card-header">
+                <span class="day-number">Day 6</span>
+                <span class="date">2024/10/6</span>
+            </div>
+            <div class="card-content">
+                <div class="food-image">
+                    <div class="placeholder-image">食物照片</div>
+                </div>
+                <div class="food-details">
+                    <div class="food-item">
+                        <span class="food-name">水果拼盤</span>
+                        <span class="food-portion"> - 1份 (約200g)</span>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-name">優格</span>
+                        <span class="food-portion"> - 1杯 (約150g)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="social-stats">
+                    <div class="social-item">
+                        👍 4
+                    </div>
+                    <div class="social-item">
+                        💬 1
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">S</div>
+                    <div class="user-text">
+                        <span class="user-name">Sarah</span>
+                        <span class="share-description">分享了今天的食物</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        // Simple demo interactions
-        document.addEventListener('DOMContentLoaded', function() {
-            // Reaction button clicks
-            const reactionBtns = document.querySelectorAll('.reaction-btn');
-            reactionBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.classList.toggle('liked');
-                    const countSpan = this.querySelector('span:last-child');
-                    let count = parseInt(countSpan.textContent);
-                    if (this.classList.contains('liked')) {
-                        count++;
-                    } else {
-                        count--;
-                    }
-                    countSpan.textContent = count;
-                });
-            });
-
-            // Comment submission
-            const commentInputs = document.querySelectorAll('.comment-input input');
-            const commentSubmits = document.querySelectorAll('.comment-submit');
-            
-            commentSubmits.forEach((submit, index) => {
-                submit.addEventListener('click', function() {
-                    const input = commentInputs[index];
-                    if (input.value.trim()) {
-                        // In real app, this would submit to API
-                        console.log('Comment submitted:', input.value);
-                        input.value = '';
-                        
-                        // Update comment count
-                        const commentBtn = submit.closest('.feed-item').querySelector('.comment-btn');
-                        const countSpan = commentBtn.querySelector('span:last-child');
-                        let count = parseInt(countSpan.textContent);
-                        countSpan.textContent = count + 1;
-                    }
-                });
-            });
-
-            // Load more button
-            const loadMoreBtn = document.querySelector('.load-more-btn');
-            loadMoreBtn.addEventListener('click', function() {
-                this.textContent = '載入中...';
-                setTimeout(() => {
-                    this.textContent = '載入更多分享';
-                }, 1000);
-            });
-        });
-    </script>
 </body>
 </html>

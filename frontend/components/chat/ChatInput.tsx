@@ -29,7 +29,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-gray-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="border-t border-gray-200 bg-white p-4 fixed bottom-16 left-0 right-0 z-40">
       <div className="flex space-x-2">
         <input
           type="text"
