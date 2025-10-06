@@ -20,6 +20,7 @@ from supabase import create_client, Client
 import json
 import time
 from dotenv import load_dotenv
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -90,32 +91,24 @@ JSON格式範例：
         response = model.generate_content(prompt)
         
         # Parse JSON from response
-        text = response.text.strip()
+        response_text = response.text
         
-        # Remove markdown code blocks if Gemini added them
-        if text.startswith('```'):
-            # Extract content between ``` markers
-            parts = text.split('```')
-            if len(parts) >= 2:
-                text = parts[1]
-                # Remove language identifier (json, JSON, etc)
-                if text.startswith('json') or text.startswith('JSON'):
-                    text = text[4:].strip()
-        
-        text = text.strip()
-        
-        # Parse JSON
-        quiz_data = json.loads(text)
-        
-        # Validate structure
-        if 'questions' not in quiz_data:
-            print(f"    ⚠️  Warning: No 'questions' key in response")
+        # Extract the correct answer key and ensure it's a single letter
+        match = re.search(r'"correct_answer":\s*"([A-D])"', response_text)
+        if not match:
+            print(f"Error: Could not find a valid correct_answer (A-D) in response for day {day_number}.")
             return None
         
-        if len(quiz_data['questions']) < 3:
-            print(f"    ⚠️  Warning: Only {len(quiz_data['questions'])} questions generated")
-        
-        return quiz_data
+        try:
+            quiz_data = json.loads(response_text)
+        except json.JSONDecodeError:
+            print(f"Error: Failed to decode JSON for day {day_number}.")
+            return None
+
+        # Ensure correct_answer is just the single letter
+        quiz_data['correct_answer'] = match.group(1)
+
+        return quiz_data['questions']
         
     except json.JSONDecodeError as e:
         print(f"    ✗ JSON parsing error: {e}")
