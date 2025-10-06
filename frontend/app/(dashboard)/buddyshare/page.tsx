@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import ShareCard from '@/components/buddyshare/ShareCard';
+import TextShareCard from '@/components/buddyshare/TextShareCard';
 import { ShareItem, ShareComment } from '@/lib/types/buddyshare';
 
 export default function BuddySharePage() {
@@ -234,15 +235,29 @@ export default function BuddySharePage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredShares.map((share) => (
-              <ShareCard
-                key={`${share.type}-${share.id}`}
-                share={share}
-                onCommentSubmit={(content) => handleCommentSubmit(share.id, share.type, content)}
-                onReactionToggle={() => handleReactionToggle(share.id, share.type)}
-                currentUserId={user?.id}
-              />
-            ))}
+            {filteredShares.map((share) => {
+              if (share.type === 'food_log') {
+                return (
+                  <ShareCard
+                    key={`${share.type}-${share.id}`}
+                    share={share}
+                    onCommentSubmit={(content) => handleCommentSubmit(share.id, share.type, content)}
+                    onReactionToggle={() => handleReactionToggle(share.id, share.type)}
+                    currentUserId={user?.id}
+                  />
+                );
+              } else {
+                return (
+                  <TextShareCard
+                    key={`${share.type}-${share.id}`}
+                    share={share}
+                    onCommentSubmit={(content) => handleCommentSubmit(share.id, share.type, content)}
+                    onReactionToggle={() => handleReactionToggle(share.id, share.type)}
+                    currentUserId={user?.id}
+                  />
+                );
+              }
+            })}
           </div>
         )}
         

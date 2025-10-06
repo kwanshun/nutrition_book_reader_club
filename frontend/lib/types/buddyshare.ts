@@ -1,3 +1,9 @@
+export interface FoodItem {
+  name: string;
+  description: string;
+  portion: string;
+}
+
 export interface ShareItem {
   id: string;
   type: 'text_share' | 'food_log';
@@ -17,6 +23,8 @@ export interface ShareItem {
   // Food log specific
   food_name?: string;
   food_image_url?: string;
+  detected_foods?: FoodItem[];
+  day_number?: number;
 }
 
 export interface ShareComment {

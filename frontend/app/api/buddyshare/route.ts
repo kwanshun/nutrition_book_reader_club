@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
         food_name,
         content,
         image_url,
+        detected_foods,
         created_at,
         updated_at,
         profiles (
@@ -162,6 +163,8 @@ export async function GET(request: NextRequest) {
         updated_at: log.updated_at,
         food_name: log.food_name,
         food_image_url: log.image_url,
+        detected_foods: log.detected_foods || [],
+        day_number: 1, // Default day number for now
         like_count: likeCount,
         comment_count: commentCount,
         is_liked: isLiked,

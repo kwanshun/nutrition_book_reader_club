@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ShareItem, ShareComment } from '@/lib/types/buddyshare';
 import CommentSection from './CommentSection';
 
@@ -42,108 +42,86 @@ export default function ShareCard({ share, onCommentSubmit, onReactionToggle, cu
     setShowComments(!showComments);
   };
 
-  const formatDateTime = (dateString: string) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 1) {
-      return '剛剛';
-    } else if (diffHours < 24) {
-      return `${diffHours} 小時前`;
-    } else if (diffDays < 7) {
-      return `${diffDays} 天前`;
-    } else {
-      return date.toLocaleDateString('zh-TW', {
-        month: '2-digit',
-        day: '2-digit'
-      });
-    }
+    return date.toLocaleDateString('zh-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
   };
 
   const getAvatarText = (name: string) => {
     return name.charAt(0).toUpperCase();
   };
 
-  const getShareTypeLabel = () => {
-    return share.type === 'text_share' ? '📝 文字分享' : '🍽️ 食物記錄';
-  };
-
-  const getShareDescription = () => {
-    if (share.type === 'text_share') {
-      return `分享了第 ${share.day_number} 天的學習心得`;
-    } else {
-      return '分享了今天的食物';
-    }
-  };
+  // Only render food log cards in the new format
+  if (share.type !== 'food_log') {
+    return null;
+  }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-            {getAvatarText(share.user_name)}
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900 text-sm">{share.user_name}</h3>
-            <p className="text-xs text-gray-500">{getShareDescription()}</p>
-          </div>
-          <div className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-            {getShareTypeLabel()}
-          </div>
+    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+      {/* Card Header */}
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-lg font-bold text-green-600">Day {share.day_number || 1}</span>
+        <span className="text-sm text-gray-500">{formatDate(share.created_at)}</span>
+      </div>
+
+      {/* Card Content */}
+      <div className="flex gap-3 mb-3">
+        {/* Food Image */}
+        <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+          {share.food_image_url ? (
+            <img 
+              src={share.food_image_url} 
+              alt="食物照片"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">食物照片</div>';
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+              食物照片
+            </div>
+          )}
+        </div>
+
+        {/* Food Details */}
+        <div className="flex-1">
+          {share.detected_foods && share.detected_foods.length > 0 ? (
+            <div className="space-y-1">
+              {share.detected_foods.map((food, index) => (
+                <div key={index} className="text-sm text-gray-700">
+                  <span className="font-medium">{food.name}</span>
+                  <span className="text-gray-500"> - {food.portion}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">
+              {share.food_name || '食物記錄'}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        {share.type === 'text_share' ? (
-          <div className="text-sm text-gray-700 leading-relaxed">
-            {share.content}
-          </div>
-        ) : (
-          <div className="flex gap-4 items-center">
-            {share.food_image_url ? (
-              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                <img 
-                  src={share.food_image_url} 
-                  alt={share.food_name || '食物照片'}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to emoji if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div class="w-full h-full bg-orange-200 rounded-lg flex items-center justify-center text-2xl">🍽️</div>';
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="w-16 h-16 bg-orange-200 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
-                🍽️
-              </div>
-            )}
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900 text-sm mb-1">{share.food_name || '食物記錄'}</h4>
-              <p className="text-xs text-gray-500">{share.content}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-100">
-        <div className="flex items-center gap-4">
+      {/* Card Footer */}
+      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+        {/* Social Stats */}
+        <div className="flex gap-4">
           <button
             onClick={onReactionToggle}
             className="flex items-center gap-1 text-gray-600 hover:text-green-600 transition-colors"
           >
             <span className="text-sm">👍</span>
-            <span className="text-xs">{share.like_count}</span>
+            <span className="text-sm">{share.like_count}</span>
           </button>
           
           <button
@@ -151,11 +129,18 @@ export default function ShareCard({ share, onCommentSubmit, onReactionToggle, cu
             className="flex items-center gap-1 text-gray-600 hover:text-blue-600 transition-colors"
           >
             <span className="text-sm">💬</span>
-            <span className="text-xs">{share.comment_count}</span>
+            <span className="text-sm">{share.comment_count}</span>
           </button>
-          
-          <div className="ml-auto text-xs text-gray-400">
-            {formatDateTime(share.created_at)}
+        </div>
+
+        {/* User Info */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+            {getAvatarText(share.user_name)}
+          </div>
+          <div className="text-right">
+            <div className="text-sm font-medium text-gray-700">{share.user_name}</div>
+            <div className="text-xs text-gray-500">分享了今天的食物</div>
           </div>
         </div>
       </div>

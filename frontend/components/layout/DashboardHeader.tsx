@@ -18,9 +18,20 @@ export default function DashboardHeader({
         <div className="flex items-center gap-4">
           {/* Book Cover */}
           <div className="flex-shrink-0 w-24 h-32 bg-white rounded shadow-lg overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-              書籍封面
-            </div>
+            <img 
+              src="/book-cover.jpg" 
+              alt="吃的營養 科學觀 - 書籍封面"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">書籍封面</div>';
+                }
+              }}
+            />
           </div>
 
           {/* Text Content */}
