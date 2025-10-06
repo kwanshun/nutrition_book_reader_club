@@ -235,7 +235,7 @@ export default function RecordsPage() {
               >
                 {day.isCurrentMonth && (
                  <>
-                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${
+                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full relative ${
                      day.activity?.share && day.activity?.foodLog 
                        ? 'border-2 border-gray-800 bg-gray-400' // Both activities: gray circle with black border
                        : day.activity?.share 
@@ -247,6 +247,12 @@ export default function RecordsPage() {
                      {day.dayOfMonth}
                      {isToday(day.dayOfMonth, currentDate) && (
                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-red-500"></div>
+                     )}
+                     {/* Quiz indicator overlay */}
+                     {day.activity?.quiz && (
+                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center shadow-sm">
+                         <span className="text-xs text-white">🖥️</span>
+                       </div>
                      )}
                    </div>
                  </>
