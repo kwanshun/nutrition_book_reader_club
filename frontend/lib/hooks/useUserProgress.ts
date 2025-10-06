@@ -103,6 +103,8 @@ export function useUserProgress() {
           const calendarDate = new Date(currentYear, currentMonth, programDay);
           const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
           
+          console.log(`Text share: Day ${programDay} -> Calendar Date ${date}`);
+          
           if (!activityMap.has(date)) {
             activityMap.set(date, { date, share: true, foodLog: false, quiz: false });
           } else {
@@ -113,10 +115,26 @@ export function useUserProgress() {
         }
       });
 
-      // Process food logs
+      // Process food logs - map Program Day to calendar date (same as text shares)
       foodLogs?.forEach(item => {
         try {
-          const date = getCalendarDate(item.created_at);
+          // Calculate calendar date from Program Day using created_at timestamp
+          const logDate = new Date(item.created_at);
+          const currentMonth = logDate.getMonth();
+          const currentYear = logDate.getFullYear();
+          const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+          const daysSinceStart = Math.floor((logDate.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
+          const programDay = Math.min(daysSinceStart + 1, 21);
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            console.warn('Invalid program day for food log:', programDay);
+            return;
+          }
+          
+          const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
+          
+          console.log(`Food log: ${item.created_at} -> Program Day ${programDay} -> Calendar Date ${date}`);
+          
           if (!activityMap.has(date)) {
             activityMap.set(date, { date, share: false, foodLog: true, quiz: false });
           } else {
@@ -151,7 +169,19 @@ export function useUserProgress() {
       
       const foodLogDays = new Set(foodLogs?.map(item => {
         try {
-          return getCalendarDate(item.created_at);
+          // Calculate calendar date from Program Day using created_at timestamp
+          const logDate = new Date(item.created_at);
+          const currentMonth = logDate.getMonth();
+          const currentYear = logDate.getFullYear();
+          const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+          const daysSinceStart = Math.floor((logDate.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
+          const programDay = Math.min(daysSinceStart + 1, 21);
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            return null;
+          }
+          
+          return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
         } catch (error) {
           console.error('Error calculating food log day:', error, item);
           return null;

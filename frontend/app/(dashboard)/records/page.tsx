@@ -235,7 +235,15 @@ export default function RecordsPage() {
               >
                 {day.isCurrentMonth && (
                  <>
-                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${day.activity?.share ? 'border-2 border-gray-800 bg-white' : ''}`}>
+                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${
+                     day.activity?.share && day.activity?.foodLog 
+                       ? 'border-2 border-gray-800 bg-gray-400' // Both activities: gray circle with black border
+                       : day.activity?.share 
+                         ? 'border-2 border-gray-800 bg-white' // Text share only: empty circle with black border
+                         : day.activity?.foodLog 
+                           ? 'bg-gray-400' // Food log only: gray filled circle
+                           : '' // No activities: no styling
+                   }`}>
                      {day.dayOfMonth}
                      {isToday(day.dayOfMonth, currentDate) && (
                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-red-500"></div>
