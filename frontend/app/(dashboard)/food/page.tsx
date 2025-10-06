@@ -30,7 +30,7 @@ export default function FoodPage() {
       <DashboardHeader period={21} />
       <main className="max-w-md mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">📸 食物辨識</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">📸 食物辨識 (正在更新)</h1>
           <p className="text-gray-600 text-sm mb-6">
             拍攝或上傳食物照片，AI 將自動識別食物並估算份量
           </p>
