@@ -8,21 +8,17 @@ import { useCurrentDay } from '@/lib/hooks/useCurrentDay';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function QuizPage() {
-  const { user } = useAuth();
+  const router = useRouter(); // Initialize router
   const searchParams = useSearchParams();
-  const { currentDay } = useCurrentDay();
+  const { user } = useAuth();
+  const { currentDay: todayDay } = useCurrentDay(); // Get today's actual day number
   
   // Use day from URL parameter, or fallback to calculated current day, or default to 1
   // But only if currentDay is available (not null)
-  const day = searchParams.get('day') ? parseInt(searchParams.get('day')!) : (currentDay ?? 1);
-  
-  console.log('🔍 QuizPage: Component render');
-  console.log('🔍 QuizPage: searchParams day =', searchParams.get('day'));
-  console.log('🔍 QuizPage: currentDay =', currentDay);
-  console.log('🔍 QuizPage: final day =', day);
-  console.log('🔍 QuizPage: About to call useQuiz with day =', day);
+  const day = searchParams.get('day') ? parseInt(searchParams.get('day')!) : (todayDay ?? 1);
   
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -31,20 +27,20 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Only call useQuiz when we have a valid day (not null)
-  const { quiz, loading, error } = useQuiz(currentDay !== null ? day : undefined);
+  const { quiz, loading, error } = useQuiz(todayDay !== null ? day : undefined);
   
-  console.log('🔍 QuizPage: quiz data =', quiz);
-  console.log('🔍 QuizPage: loading =', loading);
-  console.log('🔍 QuizPage: error =', error);
-
   // Reset quiz state when day changes
   useEffect(() => {
-    console.log('🔍 QuizPage: Day changed to', day, '- resetting quiz state');
     setCurrentQuestion(0);
     setSelectedAnswers([]);
     setShowResults(false);
     setScore(0);
   }, [day]);
+
+  const handleDayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDay = event.target.value;
+    router.push(`/quiz?day=${newDay}`);
+  };
 
   const handleAnswerSelect = (answer: string) => {
     const newAnswers = [...selectedAnswers];
@@ -115,9 +111,7 @@ export default function QuizPage() {
     setScore(0);
   };
 
-  if (loading || currentDay === null || !quiz) {
-    console.log('🔍 QuizPage: Showing loading state - loading:', loading, 'currentDay:', currentDay, 'quiz:', !!quiz);
-    console.log('🔍 QuizPage: Waiting for currentDay to be calculated...');
+  if (loading || todayDay === null || !quiz) {
     return (
       <div>
         <DashboardHeader period={21} />
@@ -154,24 +148,16 @@ export default function QuizPage() {
     // If quiz is an array, find the quiz for the current day
     const dayQuiz = quiz.find((q: any) => q.day_number === day);
     quizData = dayQuiz || { questions: [], day_number: day };
-    console.log('🔍 QuizPage: Found quiz in array for day', day, ':', dayQuiz);
   } else {
     // If quiz is a single object
     quizData = quiz as { questions: any[], day_number?: number };
-    console.log('🔍 QuizPage: Using single quiz object:', quizData);
   }
   
   // Handle nested questions structure
   let questions = quizData.questions || [];
   if (questions && typeof questions === 'object' && 'questions' in questions) {
     questions = questions.questions;
-    console.log('🔍 QuizPage: Extracted nested questions:', questions);
   }
-
-  console.log('🔍 QuizPage: quizData =', quizData);
-  console.log('🔍 QuizPage: questions =', questions);
-  console.log('🔍 QuizPage: questions.length =', questions.length);
-  console.log('🔍 QuizPage: questions type =', typeof questions);
 
   // Validate that the quiz data matches the expected day
   if (quizData.day_number && quizData.day_number !== day) {
@@ -190,8 +176,6 @@ export default function QuizPage() {
       </div>
     );
   }
-
-  console.log('🔍 QuizPage: Quiz validation passed - day:', day, 'quiz day:', quizData.day_number);
 
   if (showResults) {
     return (
@@ -274,6 +258,27 @@ export default function QuizPage() {
     <div key={`quiz-page-${day}`}>
       <DashboardHeader period={21} />
       <main className="max-w-md mx-auto px-4 py-6">
+        <div className="mb-4">
+          <label htmlFor="day-select" className="block text-sm font-medium text-gray-700 mb-1">
+            選擇測驗日期:
+          </label>
+          <select
+            id="day-select"
+            value={day}
+            onChange={handleDayChange}
+            disabled={!todayDay || todayDay <= 1}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
+          >
+            {todayDay && Array.from({ length: todayDay }, (_, i) => i + 1)
+              .sort((a, b) => b - a) // Sort in descending order
+              .map(d => (
+                <option key={d} value={d}>
+                  第 {d} 天
+                </option>
+            ))}
+          </select>
+        </div>
+
         {/* Progress */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">

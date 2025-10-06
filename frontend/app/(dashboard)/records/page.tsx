@@ -15,6 +15,16 @@ export default function RecordsPage() {
   const [allShares, setAllShares] = useState<any[]>([]);
   const [loadingAllShares, setLoadingAllShares] = useState(false);
 
+  // New state for "All Food Logs" modal
+  const [showFoodLogsModal, setShowFoodLogsModal] = useState(false);
+  const [allFoodLogs, setAllFoodLogs] = useState<any[]>([]);
+  const [loadingFoodLogs, setLoadingFoodLogs] = useState(false);
+
+  // New state for "All Quiz Results" modal
+  const [showQuizResultsModal, setShowQuizResultsModal] = useState(false);
+  const [allQuizResponses, setAllQuizResponses] = useState<any[]>([]);
+  const [loadingQuizResponses, setLoadingQuizResponses] = useState(false);
+
   // Get calendar data for current month
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -73,6 +83,54 @@ export default function RecordsPage() {
       // You might want to show an error in the modal
     } finally {
       setLoadingAllShares(false);
+    }
+  };
+
+  const fetchAllFoodLogs = async () => {
+    setLoadingFoodLogs(true);
+    setShowFoodLogsModal(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: foodLogs, error } = await supabase
+        .from('food_logs')
+        .select('*, food_log_items(*)')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setAllFoodLogs(foodLogs || []);
+    } catch (err) {
+      console.error('Error fetching all food logs:', err);
+    } finally {
+      setLoadingFoodLogs(false);
+    }
+  };
+
+  const fetchAllQuizResponses = async () => {
+    setLoadingQuizResponses(true);
+    setShowQuizResultsModal(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: responses, error } = await supabase
+        .from('quiz_responses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('answered_at', { ascending: false });
+
+      if (error) throw error;
+
+      setAllQuizResponses(responses || []);
+    } catch (err) {
+      console.error('Error fetching all quiz responses:', err);
+    } finally {
+      setLoadingQuizResponses(false);
     }
   };
 
@@ -200,7 +258,7 @@ export default function RecordsPage() {
 
             {/* Food Log Stats Button */}
             <button
-              onClick={() => alert('Coming soon!')}
+              onClick={fetchAllFoodLogs}
               className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
@@ -213,7 +271,7 @@ export default function RecordsPage() {
 
             {/* Quiz Stats Button */}
             <button
-              onClick={() => alert('Coming soon!')}
+              onClick={fetchAllQuizResponses}
               className="flex items-center space-x-3 w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
             >
               <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
@@ -270,6 +328,114 @@ export default function RecordsPage() {
                       </div>
                     ) : (
                       <p className="text-gray-500 text-center py-8">沒有學習打咭記錄</p>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All Food Logs Modal */}
+        {showFoodLogsModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                <h2 className="text-lg font-bold">
+                  所有食物記錄
+                </h2>
+                <button
+                  onClick={() => setShowFoodLogsModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-4">
+                {loadingFoodLogs ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : (
+                  <>
+                    {allFoodLogs.length > 0 ? (
+                      <div className="space-y-4">
+                        {allFoodLogs.map((log: any) => (
+                          <div key={log.id} className="flex items-start space-x-4 p-3 border border-gray-200 rounded-lg">
+                            <img 
+                              src={log.image_url} 
+                              alt="Food log" 
+                              className="w-24 h-24 object-cover rounded-md flex-shrink-0"
+                            />
+                            <div className="flex-grow">
+                              <p className="text-xs text-gray-500 mb-2">
+                                {new Date(log.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                              </p>
+                              <ul className="space-y-1">
+                                {log.food_log_items.map((item: any) => (
+                                  <li key={item.id} className="text-sm text-gray-800">
+                                    <span className="font-semibold">{item.name}</span>
+                                    {item.portion && <span className="text-gray-600"> - {item.portion}</span>}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-8">沒有食物記錄</p>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All Quiz Results Modal */}
+        {showQuizResultsModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                <h2 className="text-lg font-bold">
+                  所有測驗結果
+                </h2>
+                <button
+                  onClick={() => setShowQuizResultsModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-4">
+                {loadingQuizResponses ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : (
+                  <>
+                    {allQuizResponses.length > 0 ? (
+                      <div className="space-y-3">
+                        {allQuizResponses.map((response: any) => (
+                          <div key={response.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                            <span className="font-semibold text-gray-800">
+                              分數: {response.score}/{response.total_questions}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              {new Date(response.answered_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-8">沒有測驗結果</p>
                     )}
                   </>
                 )}

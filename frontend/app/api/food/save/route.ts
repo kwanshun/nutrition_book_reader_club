@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert food log
-    const { data, error } = await supabase
+    const { data: logData, error: logError } = await supabase
       .from('food_logs')
       .insert({
         user_id: user.id,
@@ -31,12 +31,31 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    if (error) {
-      console.error('Error saving food log:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (logError) {
+      console.error('Error saving food log:', logError);
+      return NextResponse.json({ error: logError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    // Insert detected food items
+    const foodItemsToInsert = detected_foods.map((food) => ({
+      food_log_id: logData.id,
+      user_id: user.id,
+      name: food.name,
+      description: food.description,
+      portion: food.portion,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from('food_log_items')
+      .insert(foodItemsToInsert);
+
+    if (itemsError) {
+      console.error('Error saving food log items:', itemsError);
+      // Optional: Add logic here to delete the parent food_log entry for consistency
+      return NextResponse.json({ error: itemsError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: logData }, { status: 201 });
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json(
