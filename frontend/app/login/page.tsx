@@ -146,13 +146,23 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="text-center">
-              <Link
-                href="/register"
-                className="text-blue-600 hover:text-blue-500 text-sm"
-              >
-                還沒有帳號？立即註冊
-              </Link>
+            <div className="text-center space-y-2">
+              <div>
+                <Link
+                  href="/reset-password"
+                  className="text-blue-600 hover:text-blue-500 text-sm"
+                >
+                  忘記密碼？
+                </Link>
+              </div>
+              <div>
+                <Link
+                  href="/register"
+                  className="text-blue-600 hover:text-blue-500 text-sm"
+                >
+                  還沒有帳號？立即註冊
+                </Link>
+              </div>
             </div>
           </form>
         </div>

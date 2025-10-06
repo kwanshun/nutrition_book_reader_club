@@ -33,6 +33,20 @@ def add_more_test_data(email="test55@andywong.me", password="123456"):
         print(f"   ❌ Authentication failed: {e}")
         return
     
+    # Get user's group_id (REQUIRED for all content)
+    print("\n0. Getting user's group_id...")
+    try:
+        group_members = supabase.table('group_members').select('group_id').eq('user_id', user_id).execute()
+        if not group_members.data:
+            print("   ❌ User is not in any group! Cannot create content without group_id.")
+            return
+        
+        group_id = group_members.data[0]['group_id']
+        print(f"   ✅ User's group_id: {group_id}")
+    except Exception as e:
+        print(f"   ❌ Error getting group_id: {e}")
+        return
+    
     # Create specific dates
     oct_7 = datetime(2025, 10, 7)
     oct_9 = datetime(2025, 10, 9)
@@ -43,12 +57,14 @@ def add_more_test_data(email="test55@andywong.me", password="123456"):
     text_shares_data = [
         {
             "user_id": user_id,
+            "group_id": group_id,  # ← REQUIRED for buddyshare to work!
             "day_number": 9,  # Oct 9 = Day 9
             "content": "第9天學習了B族維生素的重要性，對身體的能量代謝有了更深的認識。",
             "created_at": oct_9.isoformat() + "Z"
         },
         {
             "user_id": user_id,
+            "group_id": group_id,  # ← REQUIRED for buddyshare to work!
             "day_number": 15,  # Oct 15 = Day 15
             "content": "第15天學習了礦物質的知識，特別是鐵質對身體的重要性。",
             "created_at": oct_15.isoformat() + "Z"
@@ -67,12 +83,14 @@ def add_more_test_data(email="test55@andywong.me", password="123456"):
     food_logs_data = [
         {
             "user_id": user_id,
+            "group_id": group_id,  # ← REQUIRED for buddyshare to work!
             "user_input": "晚餐：蒸蛋配青菜",
             "image_url": "https://example.com/food_oct7.jpg",
             "created_at": oct_7.isoformat() + "Z"
         },
         {
             "user_id": user_id,
+            "group_id": group_id,  # ← REQUIRED for buddyshare to work!
             "user_input": "午餐：牛肉麵配小菜",
             "image_url": "https://example.com/food_oct15.jpg",
             "created_at": oct_15.isoformat() + "Z"

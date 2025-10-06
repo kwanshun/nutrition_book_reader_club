@@ -14,17 +14,44 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's group
-    const { data: groupMember, error: groupError } = await supabase
+    const { data: groupMembers, error: groupError } = await supabase
       .from('group_members')
       .select('group_id')
-      .eq('user_id', user.id)
-      .single();
+      .eq('user_id', user.id);
 
-    if (!groupMember) {
+    if (groupError) {
+      console.error('Error fetching user groups:', groupError);
+      return NextResponse.json({ error: 'Failed to fetch user groups' }, { status: 500 });
+    }
+
+    if (!groupMembers || groupMembers.length === 0) {
       return NextResponse.json({ error: 'User not in any group' }, { status: 403 });
     }
 
-    // Fetch text shares from the same group
+    // Use the first group (in case user is in multiple groups)
+    const groupId = groupMembers[0].group_id;
+
+    // Get all group members
+    const { data: allGroupMembers, error: membersError } = await supabase
+      .from('group_members')
+      .select('user_id')
+      .eq('group_id', groupId);
+
+    if (membersError || !allGroupMembers) {
+      return NextResponse.json({ error: 'Failed to fetch group members' }, { status: 500 });
+    }
+
+    const groupMemberIds = allGroupMembers.map(member => member.user_id);
+    
+    // Filter out the current user's ID to only show other users' content
+    const otherUserIds = groupMemberIds.filter(id => id !== user.id);
+    
+    console.log('Debug - User ID:', user.id);
+    console.log('Debug - Group ID:', groupId);
+    console.log('Debug - Group member IDs:', groupMemberIds);
+    console.log('Debug - Other user IDs (excluding current user):', otherUserIds);
+
+    // Fetch text shares from group members (fallback to user_id if group_id is null)
     const { data: textShares, error: textSharesError } = await supabase
       .from('text_shares')
       .select(`
@@ -38,12 +65,16 @@ export async function GET(request: NextRequest) {
           display_name
         )
       `)
-      .eq('group_id', groupMember.group_id)
+      .in('user_id', otherUserIds)
       .order('created_at', { ascending: false })
       .limit(20);
 
+    if (textSharesError) {
+      console.error('Error fetching text shares:', textSharesError);
+    }
+    console.log('Debug - Text shares found (from other users):', textShares?.length || 0);
 
-    // Fetch food logs from the same group
+    // Fetch food logs from group members (fallback to user_id if group_id is null)
     const { data: foodLogs, error: foodLogsError } = await supabase
       .from('food_logs')
       .select(`
@@ -58,10 +89,14 @@ export async function GET(request: NextRequest) {
           display_name
         )
       `)
-      .eq('group_id', groupMember.group_id)
+      .in('user_id', otherUserIds)
       .order('created_at', { ascending: false })
       .limit(20);
 
+    if (foodLogsError) {
+      console.error('Error fetching food logs:', foodLogsError);
+    }
+    console.log('Debug - Food logs found (from other users):', foodLogs?.length || 0);
 
     // Get comment counts for all shares
     const shareIds: string[] = [];

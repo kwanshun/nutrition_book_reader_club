@@ -14,11 +14,11 @@ export default function ChatMessage({ message, isOwnMessage }: ChatMessageProps)
   const supabase = createClient();
 
   useEffect(() => {
-    // Fetch user display name from user_profiles
+    // Fetch user display name from profiles table
     const fetchUserName = async () => {
       try {
         const { data, error } = await supabase
-          .from('user_profiles')
+          .from('profiles')
           .select('display_name')
           .eq('user_id', message.user_id)
           .single();

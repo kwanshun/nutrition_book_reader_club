@@ -143,6 +143,40 @@ export default function ProfilePage() {
                 </p>
               </div>
 
+              {/* Password Settings */}
+              <div className="pt-4 border-t border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  🔒 密碼設定
+                </label>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => router.push('/change-password')}
+                    className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🔑</span>
+                      <div>
+                        <p className="font-medium text-gray-900">修改密碼</p>
+                        <p className="text-sm text-gray-500">更改您的登入密碼</p>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => router.push('/reset-password')}
+                    className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📧</span>
+                      <div>
+                        <p className="font-medium text-gray-900">忘記密碼？</p>
+                        <p className="text-sm text-gray-500">透過電子郵件重設密碼</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Profile Status */}
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between text-sm">

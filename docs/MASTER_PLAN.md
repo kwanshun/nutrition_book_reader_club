@@ -195,6 +195,94 @@ All credentials are in `.env` file:
   - Auto-post from other functions
 - **Current State:** Real-time chat working
 
+#### **Detailed Requirements:**
+- **Real-time Features:**
+  - ✅ Real-time message delivery using Supabase Realtime
+  - ✅ Group-based chat (users can only see messages from their groups)
+  - ✅ Message history (last 100 messages loaded on page load)
+  - ✅ User identification with display names (not user IDs)
+  - ✅ Timestamp for each message
+  - ✅ Auto-scroll to latest messages
+  - ✅ Different styling for own vs. others' messages
+
+- **Security Requirements:**
+  - ✅ Authentication: Users must be logged in to send messages
+  - ✅ Authorization: Users can only send/read messages in groups they belong to
+  - ✅ RLS Policies: Database-level security ensures data isolation between groups
+
+- **UI Requirements:**
+  - **Own Messages**: Right-aligned, blue background, white text
+  - **Other Messages**: Left-aligned, gray background, black text
+  - **Username**: Only shown for other users' messages
+  - **Timestamp**: 24-hour format (HH:MM)
+  - **Message Content**: Supports line breaks and long text
+  - **Input Area**: Text input with placeholder "輸入訊息...", send button
+  - **Loading States**: "發送中..." when sending, "載入訊息中..." when loading
+
+- **API Endpoints:**
+  - **POST** `/api/chat/send` - Send new message
+  - **GET** `/api/chat/messages` - Fetch message history (via useChat hook)
+
+- **Database Schema:**
+  ```sql
+  CREATE TABLE chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL REFERENCES groups(id),
+    user_id UUID NOT NULL REFERENCES auth.users(id),
+    message TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  ```
+
+- **Components Architecture:**
+  - **`useChat` hook** (`lib/hooks/useChat.ts`) - Manages chat state and real-time subscriptions
+  - **`ChatMessage` component** (`components/chat/ChatMessage.tsx`) - Displays individual messages
+  - **`ChatInput` component** (`components/chat/ChatInput.tsx`) - Input field and send button
+  - **Chat API Route** (`app/api/chat/send/route.ts`) - Validates user and inserts message
+
+- **Data Flow:**
+  1. User types message → `ChatInput`
+  2. `ChatInput` calls `sendMessage()` from `useChat`
+  3. `useChat` sends POST to `/api/chat/send`
+  4. API validates user and inserts message into `chat_messages` table
+  5. Supabase Realtime broadcasts new message to all subscribers
+  6. `useChat` receives the broadcast and updates local state
+  7. New message appears in all connected clients instantly
+
+- **Setup Requirements:**
+  - Enable Realtime for `chat_messages` table in Supabase Dashboard
+  - Create test group and add users via SQL
+  - Verify RLS policies allow reading messages
+
+- **Troubleshooting:**
+  - "尚未加入群組" → Run SQL script to create group and add users
+  - Messages not appearing → Check Realtime enabled, WebSocket errors, RLS policies
+  - "您不是該群組的成員" → Verify user in `group_members` table
+  - Messages not sending → Check console errors, authentication, Supabase logs
+
+- **Testing Checklist:**
+  - [ ] Create test group via SQL
+  - [ ] Add user to group
+  - [ ] Navigate to `/chat`
+  - [ ] Send a message
+  - [ ] Open chat in another browser/tab
+  - [ ] Verify message appears in real-time in both windows
+  - [ ] Verify own messages appear on right (blue)
+  - [ ] Verify others' messages appear on left (gray)
+  - [ ] Verify timestamps are correct
+  - [ ] Refresh page and verify message history loads
+
+- **Future Enhancements:**
+  - [ ] Message editing/deletion
+  - [ ] File/image sharing
+  - [ ] Typing indicators
+  - [ ] Read receipts
+  - [ ] Message reactions
+  - [ ] User presence (online/offline status)
+  - [ ] Multiple groups per user with group switcher
+  - [ ] Message search
+  - [ ] Push notifications for new messages
+
 ### **Function 7: Leader Announcement System** ❌
 - **Status:** ❌ NOT Implemented
 - **Description:** Content management for posting important updates
@@ -239,8 +327,24 @@ All credentials are in `.env` file:
 
 #### **2. Authentication Pages** ✅
 - **Login Page** (`/login`) - ✅ Working (200 OK)
+  - **Password Reset Integration**: "忘記密碼？" link added below login form
+  - **Navigation**: Links to `/reset-password` page for email-based password reset
 - **Registration Page** (`/register`) - ✅ Working (200 OK)
 - **Auth Callback** (`/auth/callback`) - ✅ Working (200 OK)
+  - **Email Token Processing**: Handles password reset tokens from email links
+  - **Session Management**: Creates user session after token verification
+  - **Auto-redirect**: Redirects to `/change-password` after successful authentication
+- **Reset Password Page** (`/reset-password`) - ✅ Working (200 OK)
+  - **Email Input**: Collects user email for password reset request
+  - **Supabase Integration**: Uses `resetPasswordForEmail()` with proper redirect URL
+  - **User Feedback**: Shows success/error messages for email sending
+  - **Navigation**: "返回登入頁面" button for easy navigation back
+- **Change Password Page** (`/change-password`) - ✅ Working (200 OK)
+  - **Authentication Required**: Only accessible to authenticated users
+  - **Password Validation**: 8+ characters, letters + numbers requirement
+  - **Password Confirmation**: Ensures new password is entered twice correctly
+  - **Supabase Integration**: Uses `updateUser()` to update password
+  - **Success Flow**: Auto-redirects to profile page after successful update
 
 #### **3. Content & Learning Pages** ✅
 - **Today's Content** (`/content/today`) - ✅ Working (200 OK)
@@ -259,6 +363,27 @@ All credentials are in `.env` file:
 
 #### **7. Administration Pages** ✅
 - **Admin Menu** (`/menu`) - ✅ Working (200 OK)
+  - **Current Features**: User info display, navigation to profile, notification settings, help & support, logout
+  - **User Name Modification**: ✅ Implemented
+    - **Display Name Editor**: Users can modify their `display_name` directly on the profile page (`/profile`)
+    - **Real-time Update**: Changes reflect immediately across all features (chat, buddyshare, etc.)
+    - **Validation**: Display name length limit (50 characters), required field validation
+    - **API Integration**: Uses `/api/user/profile` PUT endpoint with proper upsert logic
+    - **Database**: Handles unique constraint on `user_id` with conflict resolution
+  - **Password Management**: ✅ Implemented
+    - **Password Settings Section**: Added to profile page with two options:
+      - 🔑 **修改密碼** (Change Password): For logged-in users to update their password
+      - 📧 **忘記密碼？** (Forgot Password): Links to email-based password reset flow
+    - **Complete Password Reset Flow**: 
+      1. User clicks "忘記密碼？" from login or profile page
+      2. Enters email on `/reset-password` page
+      3. Receives email with reset link
+      4. Clicks link → redirects to `/auth/callback` with token
+      5. Auth callback verifies token and creates session
+      6. Redirects to `/change-password` page
+      7. User sets new password successfully
+    - **Security Features**: Authentication required, token verification, session management
+    - **User Experience**: Clear navigation, validation feedback, success confirmations
 - **User Management** (`/admin/users`) - ✅ Working (200 OK)
 - **User Confirmation** (`/admin/confirm-user`) - ✅ Working (200 OK)
 
@@ -287,6 +412,116 @@ All credentials are in `.env` file:
 - `text_shares` - Daily text reflections
 - `food_logs` - Food photo records
 - `chat_messages` - Real-time group chat
+
+### **🔑 Critical: Group ID Requirements**
+
+**IMPORTANT:** The `group_id` field is **mandatory** for all user-generated content and must be included when creating records. This is critical because:
+
+#### **Multi-Group Support**
+- Users can belong to **multiple groups** simultaneously
+- Each piece of content (text_shares, food_logs, chat_messages) must specify which group it belongs to
+- The `group_id` determines which group members can see the content
+
+#### **Required Fields for Content Creation**
+When creating any user content, **ALWAYS include `group_id`**:
+
+```python
+# ✅ CORRECT - Include group_id
+text_share_data = {
+    'user_id': user_id,
+    'group_id': group_id,  # ← REQUIRED!
+    'content': '...',
+    'created_at': '...'
+}
+
+food_log_data = {
+    'user_id': user_id,
+    'group_id': group_id,  # ← REQUIRED!
+    'user_input': '...',
+    'created_at': '...'
+}
+```
+
+#### **How to Get User's Group ID**
+```python
+# Get user's primary group (or all groups)
+group_members = supabase.table('group_members').select('group_id').eq('user_id', user_id).execute()
+group_id = group_members.data[0]['group_id']  # Use first group or let user choose
+```
+
+#### **Consequences of Missing Group ID**
+- ❌ Content won't appear in buddyshare feeds
+- ❌ Group members can't see the content
+- ❌ API queries will fail or return empty results
+- ❌ Social features won't work properly
+
+#### **Database Schema Requirements**
+- `text_shares.group_id` - **NOT NULL** (references groups.id)
+- `food_logs.group_id` - **NOT NULL** (references groups.id)  
+- `chat_messages.group_id` - **NOT NULL** (references groups.id)
+- All content tables must have `group_id` foreign key constraint
+
+### **🔑 Critical: User Display Name Requirements**
+
+**IMPORTANT:** User display names must be shown throughout the application, NOT user IDs. This is critical for user experience and privacy.
+
+#### **Display Name System**
+- **Primary Source**: `profiles.display_name` field
+- **Fallback Logic**: If `display_name` is null/empty, show `用戶{last4digits}` (e.g., "用戶805c")
+- **Database Table**: `profiles` table with `user_id` and `display_name` columns
+
+#### **Database Schema**
+```sql
+-- profiles table
+CREATE TABLE profiles (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id),
+  display_name VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+#### **Required Implementation**
+When displaying user information, **ALWAYS**:
+
+```typescript
+// ✅ CORRECT - Fetch display name
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('display_name')
+  .eq('user_id', userId)
+  .single();
+
+const displayName = profile?.display_name || `用戶${userId.slice(-4)}`;
+```
+
+#### **Where Display Names Are Required**
+- ✅ **Group Chat**: Show display names for message authors
+- ✅ **BuddyShare**: Show display names for text shares and food logs
+- ✅ **Text Sharing**: Show display names in share lists
+- ✅ **Food Logs**: Show display names for food log authors
+- ✅ **Comments**: Show display names for comment authors
+- ✅ **Progress Dashboard**: Show display names in group activity
+- ✅ **Profile Page**: Allow users to modify their display name with real-time updates
+
+#### **Consequences of Missing Display Names**
+- ❌ Poor user experience (showing cryptic user IDs)
+- ❌ Privacy concerns (exposing internal user IDs)
+- ❌ Unprofessional appearance
+- ❌ Difficult user identification in group activities
+
+#### **API Endpoints Using Display Names**
+- **GET** `/api/user/profile` - Returns user's own display name
+- **GET** `/api/buddyshare` - Returns display names for all share authors
+- **GET** `/api/shares` - Returns display names for text share authors
+- **GET** `/api/chat/messages` - Returns display names for message authors
+
+#### **Frontend Components Using Display Names**
+- `ChatMessage` component - Fetches display name from `profiles` table
+- `ShareCard` component - Shows display name for share authors
+- `CommentSection` component - Shows display name for comment authors
+- `UserProfile` component - Manages user's own display name
+- `ProfilePage` component - Includes display name editor for user modification
 
 ---
 

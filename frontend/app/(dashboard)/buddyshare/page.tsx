@@ -10,6 +10,7 @@ export default function BuddySharePage() {
   const [shares, setShares] = useState<ShareItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shareType, setShareType] = useState<'all' | 'text' | 'food'>('all');
 
   useEffect(() => {
     if (user) {
@@ -29,7 +30,15 @@ export default function BuddySharePage() {
         if (response.status === 401) {
           throw new Error('請先登入');
         }
-        throw new Error('Failed to fetch shares');
+        if (response.status === 403) {
+          throw new Error('您尚未加入任何群組');
+        }
+        if (response.status === 500) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', errorData);
+          throw new Error(`伺服器錯誤: ${errorData.error || 'Unknown error'}`);
+        }
+        throw new Error(`Failed to fetch shares (${response.status})`);
       }
       
       const data = await response.json();
@@ -110,6 +119,14 @@ export default function BuddySharePage() {
     }
   };
 
+  // Filter shares based on selected type
+  const filteredShares = shares.filter(share => {
+    if (shareType === 'all') return true;
+    if (shareType === 'text') return share.type === 'text_share';
+    if (shareType === 'food') return share.type === 'food_log';
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="max-w-md mx-auto bg-white min-h-screen">
@@ -160,16 +177,64 @@ export default function BuddySharePage() {
         <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
       </div>
       
+      {/* Toggle for share types */}
+      <div className="bg-gray-50 border-b border-gray-200">
+        <div className="flex">
+          <button
+            onClick={() => setShareType('all')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              shareType === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 hover:text-blue-600'
+            }`}
+          >
+            全部
+          </button>
+          <button
+            onClick={() => setShareType('text')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              shareType === 'text'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 hover:text-blue-600'
+            }`}
+          >
+            文字分享
+          </button>
+          <button
+            onClick={() => setShareType('food')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              shareType === 'food'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 hover:text-blue-600'
+            }`}
+          >
+            食物分享
+          </button>
+        </div>
+      </div>
+      
       <div className="p-4">
-        {shares.length === 0 ? (
+        {filteredShares.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <div className="text-4xl mb-2">💭</div>
-            <h3 className="text-lg font-medium mb-2">還沒有分享內容</h3>
-            <p className="text-sm">成為第一個分享心得的人吧！</p>
+            <h3 className="text-lg font-medium mb-2">
+              {shares.length === 0 
+                ? '還沒有分享內容' 
+                : shareType === 'text' 
+                  ? '還沒有文字分享' 
+                  : shareType === 'food' 
+                    ? '還沒有食物分享' 
+                    : '沒有符合條件的分享'}
+            </h3>
+            <p className="text-sm">
+              {shares.length === 0 
+                ? '成為第一個分享心得的人吧！' 
+                : '試試切換到其他類型的分享'}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {shares.map((share) => (
+            {filteredShares.map((share) => (
               <ShareCard
                 key={`${share.type}-${share.id}`}
                 share={share}
@@ -181,7 +246,7 @@ export default function BuddySharePage() {
           </div>
         )}
         
-        {shares.length > 0 && (
+        {filteredShares.length > 0 && (
           <div className="text-center mt-6">
             <button className="bg-white border-2 border-gray-200 text-gray-600 px-6 py-2 rounded-full text-sm hover:border-blue-500 hover:text-blue-500 transition-colors">
               載入更多分享

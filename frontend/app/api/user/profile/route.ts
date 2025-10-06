@@ -62,19 +62,26 @@ export async function PUT(request: NextRequest) {
     }
 
     // Upsert profile (insert or update)
+    console.log('Attempting to upsert profile for user:', user.id, 'with display_name:', trimmedName);
+    
     const { data, error } = await supabase
       .from('profiles')
       .upsert({
         user_id: user.id,
         display_name: trimmedName
+      }, {
+        onConflict: 'user_id'  // Specify which column to use for conflict resolution
       })
       .select('*')
       .single();
 
     if (error) {
       console.error('Error updating profile:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
     }
+    
+    console.log('Profile upsert successful:', data);
 
     return NextResponse.json({
       user_id: user.id,
