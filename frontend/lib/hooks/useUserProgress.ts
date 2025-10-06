@@ -46,7 +46,7 @@ export function useUserProgress() {
         { data: foodLogs, error: foodLogsError },
       ] = await Promise.all([
         supabase.from('quiz_responses').select('answered_at, day_number').eq('user_id', user.id),
-        supabase.from('text_shares').select('created_at').eq('user_id', user.id),
+        supabase.from('text_shares').select('created_at, day_number').eq('user_id', user.id),
         supabase.from('food_logs').select('created_at').eq('user_id', user.id),
       ]);
 
@@ -59,42 +59,123 @@ export function useUserProgress() {
       // Helper to get the calendar date from a timestamp
       const getCalendarDate = (timestamp: string) => new Date(timestamp).toISOString().split('T')[0];
 
-      // Process quiz responses
+      // Process quiz responses - map Program Day to calendar date
       quizResponses?.forEach(item => {
-        const date = getCalendarDate(item.answered_at);
-        if (!activityMap.has(date)) {
-          activityMap.set(date, { date, share: false, foodLog: false, quiz: true });
-        } else {
-          activityMap.get(date)!.quiz = true;
+        try {
+          // Calculate calendar date from Program Day
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const programDay = item.day_number;
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            console.warn('Invalid program day:', programDay);
+            return;
+          }
+          
+          const calendarDate = new Date(currentYear, currentMonth, programDay);
+          const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
+          
+          if (!activityMap.has(date)) {
+            activityMap.set(date, { date, share: false, foodLog: false, quiz: true });
+          } else {
+            activityMap.get(date)!.quiz = true;
+          }
+        } catch (error) {
+          console.error('Error processing quiz response:', error, item);
         }
       });
 
-      // Process text shares
+      // Process text shares - map Program Day to calendar date
       textShares?.forEach(item => {
-        const date = getCalendarDate(item.created_at);
-        if (!activityMap.has(date)) {
-          activityMap.set(date, { date, share: true, foodLog: false, quiz: false });
-        } else {
-          activityMap.get(date)!.share = true;
+        try {
+          // Calculate calendar date from Program Day
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const programDay = item.day_number;
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            console.warn('Invalid program day:', programDay);
+            return;
+          }
+          
+          const calendarDate = new Date(currentYear, currentMonth, programDay);
+          const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
+          
+          if (!activityMap.has(date)) {
+            activityMap.set(date, { date, share: true, foodLog: false, quiz: false });
+          } else {
+            activityMap.get(date)!.share = true;
+          }
+        } catch (error) {
+          console.error('Error processing text share:', error, item);
         }
       });
 
       // Process food logs
       foodLogs?.forEach(item => {
-        const date = getCalendarDate(item.created_at);
-        if (!activityMap.has(date)) {
-          activityMap.set(date, { date, share: false, foodLog: true, quiz: false });
-        } else {
-          activityMap.get(date)!.foodLog = true;
+        try {
+          const date = getCalendarDate(item.created_at);
+          if (!activityMap.has(date)) {
+            activityMap.set(date, { date, share: false, foodLog: true, quiz: false });
+          } else {
+            activityMap.get(date)!.foodLog = true;
+          }
+        } catch (error) {
+          console.error('Error processing food log:', error, item);
         }
       });
 
       const activities = Array.from(activityMap.values());
       
       // Calculate stats based on unique days
-      const shareDays = new Set(textShares?.map(item => getCalendarDate(item.created_at))).size;
-      const foodLogDays = new Set(foodLogs?.map(item => getCalendarDate(item.created_at))).size;
-      const quizDays = new Set(quizResponses?.map(item => getCalendarDate(item.answered_at))).size; // Count unique calendar days for quizzes
+      const shareDays = new Set(textShares?.map(item => {
+        try {
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const programDay = item.day_number;
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            return null;
+          }
+          
+          const calendarDate = new Date(currentYear, currentMonth, programDay);
+          return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
+        } catch (error) {
+          console.error('Error calculating share day:', error, item);
+          return null;
+        }
+      }).filter(Boolean)).size;
+      
+      const foodLogDays = new Set(foodLogs?.map(item => {
+        try {
+          return getCalendarDate(item.created_at);
+        } catch (error) {
+          console.error('Error calculating food log day:', error, item);
+          return null;
+        }
+      }).filter(Boolean)).size;
+      
+      const quizDays = new Set(quizResponses?.map(item => {
+        try {
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const programDay = item.day_number;
+          
+          if (!programDay || programDay < 1 || programDay > 31) {
+            return null;
+          }
+          
+          const calendarDate = new Date(currentYear, currentMonth, programDay);
+          return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(programDay).padStart(2, '0')}`;
+        } catch (error) {
+          console.error('Error calculating quiz day:', error, item);
+          return null;
+        }
+      }).filter(Boolean)).size;
 
       setStats({
         shareDays,

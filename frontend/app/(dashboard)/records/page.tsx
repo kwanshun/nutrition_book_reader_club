@@ -235,14 +235,12 @@ export default function RecordsPage() {
               >
                 {day.isCurrentMonth && (
                  <>
-                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${isToday(day.dayOfMonth, currentDate) ? 'border-2 border-black' : ''}`}>
+                   <div className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${day.activity?.share ? 'border-2 border-gray-800 bg-white' : ''}`}>
                      {day.dayOfMonth}
+                     {isToday(day.dayOfMonth, currentDate) && (
+                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-red-500"></div>
+                     )}
                    </div>
-                    <div className="flex justify-center items-center space-x-1 mt-1 absolute bottom-0 w-full">
-                      {day.activity?.share && <div className="w-2 h-2 border-2 border-gray-800 rounded-full" title="Text Share"></div>}
-                      {day.activity?.foodLog && <div className="w-2 h-2 bg-gray-400 rounded-full" title="Food Log"></div>}
-                      {day.activity?.quiz && <div className="w-2 h-2 bg-blue-500 rounded-sm" title="Quiz"></div>}
-                    </div>
                  </>
                 )}
               </div>
