@@ -3,30 +3,20 @@
 import { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/layout/DashboardHeader';
 import { useContent } from '@/lib/hooks/useContent';
+import { useCurrentDay } from '@/lib/hooks/useCurrentDay';
 import Link from 'next/link';
 
 export default function TodayContentPage() {
-  const [currentDay, setCurrentDay] = useState(1);
-  const [todayDay, setTodayDay] = useState(1);
+  const { currentDay: calculatedDay, todayDay } = useCurrentDay();
+  const [currentDay, setCurrentDay] = useState<number | null>(null);
   const { content, loading, error } = useContent(currentDay);
 
+  // Set the calculated day when it's available
   useEffect(() => {
-    // Calculate current day based on first day of current month as start date
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    
-    // Calculate days since first day of month
-    const daysSinceStart = Math.floor((today.getTime() - firstDayOfMonth.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // Current day is days since start + 1 (1-based indexing)
-    // Cap at 21 days maximum
-    const calculatedDay = Math.min(daysSinceStart + 1, 21);
-    
-    setCurrentDay(calculatedDay);
-    setTodayDay(calculatedDay);
-  }, []);
+    if (calculatedDay !== null) {
+      setCurrentDay(calculatedDay);
+    }
+  }, [calculatedDay]);
 
   const handleDayChange = (day: number) => {
     if (day >= 1 && day <= 21) {
@@ -34,7 +24,7 @@ export default function TodayContentPage() {
     }
   };
 
-  if (loading) {
+  if (loading || currentDay === null) {
     return (
       <div>
         <DashboardHeader period={21} />
