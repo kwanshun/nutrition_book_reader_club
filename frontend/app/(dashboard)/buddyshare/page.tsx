@@ -11,7 +11,7 @@ export default function BuddySharePage() {
   const [shares, setShares] = useState<ShareItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [shareType, setShareType] = useState<'all' | 'text' | 'food'>('all');
+  const [shareType, setShareType] = useState<'text' | 'food'>('text');
 
   useEffect(() => {
     if (user) {
@@ -122,7 +122,6 @@ export default function BuddySharePage() {
 
   // Filter shares based on selected type
   const filteredShares = shares.filter(share => {
-    if (shareType === 'all') return true;
     if (shareType === 'text') return share.type === 'text_share';
     if (shareType === 'food') return share.type === 'food_log';
     return true;
@@ -132,7 +131,10 @@ export default function BuddySharePage() {
     return (
       <div className="max-w-md mx-auto bg-white min-h-screen">
         <div className="bg-blue-600 text-white p-4">
-          <h1 className="text-xl font-bold">👥 同學分享</h1>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
+            同學分享
+          </h1>
           <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
         </div>
         
@@ -150,7 +152,10 @@ export default function BuddySharePage() {
     return (
       <div className="max-w-md mx-auto bg-white min-h-screen">
         <div className="bg-blue-600 text-white p-4">
-          <h1 className="text-xl font-bold">👥 同學分享</h1>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
+            同學分享
+          </h1>
           <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
         </div>
         
@@ -173,44 +178,39 @@ export default function BuddySharePage() {
 
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
-      <div className="bg-blue-600 text-white p-4">
-        <h1 className="text-xl font-bold">👥 同學分享</h1>
-        <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
-      </div>
-      
-      {/* Toggle for share types */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="flex">
-          <button
-            onClick={() => setShareType('all')}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-              shareType === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 hover:text-blue-600'
-            }`}
-          >
-            全部
-          </button>
-          <button
-            onClick={() => setShareType('text')}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-              shareType === 'text'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 hover:text-blue-600'
-            }`}
-          >
-            文字分享
-          </button>
-          <button
-            onClick={() => setShareType('food')}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-              shareType === 'food'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 hover:text-blue-600'
-            }`}
-          >
-            食物分享
-          </button>
+      <div className="bg-white border-b border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900">
+              <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
+              同學分享
+            </h1>
+            <p className="text-gray-600 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
+          </div>
+          
+          {/* Toggle Button */}
+          <div className="flex bg-gray-100 rounded-full p-0.5">
+            <button
+              onClick={() => setShareType('text')}
+              className={`px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                shareType === 'text'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              文字分享
+            </button>
+            <button
+              onClick={() => setShareType('food')}
+              className={`px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                shareType === 'food'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              食物分享
+            </button>
+          </div>
         </div>
       </div>
       
@@ -223,9 +223,7 @@ export default function BuddySharePage() {
                 ? '還沒有分享內容' 
                 : shareType === 'text' 
                   ? '還沒有文字分享' 
-                  : shareType === 'food' 
-                    ? '還沒有食物分享' 
-                    : '沒有符合條件的分享'}
+                  : '還沒有食物分享'}
             </h3>
             <p className="text-sm">
               {shares.length === 0 

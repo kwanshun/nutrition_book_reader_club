@@ -9,11 +9,11 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthWrapper>
-      <div className="min-h-screen bg-gray-50 pb-16">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <UserNameBar />
-        <div className="pt-12">
+        <main className="flex-1 pt-12 pb-16 overflow-y-auto">
           {children}
-        </div>
+        </main>
         <BottomNav />
       </div>
     </AuthWrapper>

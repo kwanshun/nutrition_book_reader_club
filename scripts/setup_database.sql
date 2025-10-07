@@ -85,6 +85,13 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Profiles (for user display names)
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
@@ -92,6 +99,7 @@ ALTER TABLE text_shares ENABLE ROW LEVEL SECURITY;
 ALTER TABLE food_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quiz_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies: Users can only see data from groups they belong to
 -- Note: Drop existing policies first to avoid conflicts
@@ -106,6 +114,8 @@ DROP POLICY IF EXISTS "Group members can read food logs" ON food_logs;
 DROP POLICY IF EXISTS "Users can insert their food logs" ON food_logs;
 DROP POLICY IF EXISTS "Users can read their quiz responses" ON quiz_responses;
 DROP POLICY IF EXISTS "Users can insert their quiz responses" ON quiz_responses;
+DROP POLICY IF EXISTS "Users can view their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 
 -- Create new policies
 
@@ -162,6 +172,36 @@ CREATE POLICY "Users can insert their quiz responses" ON quiz_responses
   FOR INSERT WITH CHECK (
     user_id = auth.uid()
   );
+
+-- Profiles: Users can view their own profile
+CREATE POLICY "Users can view their own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+-- Profiles: Users can update their own profile
+CREATE POLICY "Users can update their own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+
+-- ================================================
+-- Function to create a profile for a new user
+-- ================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name)
+  VALUES (new.id, new.raw_user_meta_data->>'display_name');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ================================================
+-- Trigger to run the function on new user creation
+-- ================================================
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 
 -- ================================================
 -- SUCCESS! Tables created.

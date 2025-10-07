@@ -64,8 +64,11 @@ export default function RegisterPage() {
               }),
             });
             
-            if (!joinResponse.ok) {
-              console.warn('Failed to join group with invite code:', inviteCode);
+            if (joinResponse.ok) {
+              console.log('✅ Successfully joined group with invite code:', inviteCode);
+            } else {
+              const errorData = await joinResponse.json();
+              console.warn('Failed to join group with invite code:', inviteCode, errorData);
               // Don't show error to user - they can join later
             }
           } catch (joinError) {

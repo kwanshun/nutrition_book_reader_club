@@ -75,10 +75,14 @@ The `/records` page displays three activity summaries that are sourced from spec
 | All 3 Activities | Circle around number + fish icon + pencil icon below |
 
 **Implementation Details:**
-- **Text Share Circle**: 2px solid black border, placed around the date number using absolute positioning
-- **Food Log Icon**: `/fish.png` image (18x18px on calendar, 40x40px in summary) - transparent background
-- **Quiz Icon**: `/tick.png` image (18x18px on calendar, 40x40px in summary) - transparent background
-- **Icon Spacing**: Icons below the number have 4px gap between them when multiple icons exist
+- **Text Share Circle**: 2px solid black border, placed around the date number using absolute positioning (28px diameter)
+- **Food Log Icon**: `/fish.png` image (12x12px on calendar, 40x40px in summary) - transparent PNG background
+- **Quiz Icon**: `/tick.png` image (12x12px on calendar, 40x40px in summary) - transparent PNG background
+- **Day Number Container**: 28px × 28px (w-7 h-7)
+- **Day Number Font**: Small (text-sm)
+- **Icon Spacing**: Icons below the number have 2px gap (gap-0.5) between them when multiple icons exist
+- **Vertical Spacing**: Minimal padding for compact calendar layout
+- **Icon Height**: Minimum 14px for icon container
 
 **Summary Section Icons:**
 - **學習打咭 (Text Share)**: Hollow circle (40px diameter, 2px border)
@@ -132,6 +136,13 @@ All credentials are in `.env` file:
 - Gemini API Key
 
 **Never commit this file to git!** (protected by `.gitignore`)
+
+### 🧪 Test User Credentials
+**Test User for Development & Testing:**
+- **Email:** test55@andywong.me
+- **Password:** 123456
+- **Purpose:** Testing all app features including dashboard, icons, and functionality
+- **Status:** Active user with group membership
 
 ---
 

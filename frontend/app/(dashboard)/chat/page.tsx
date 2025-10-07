@@ -128,13 +128,16 @@ export default function ChatPage() {
       
       <main className="flex-1 flex flex-col max-w-md mx-auto w-full bg-white shadow-sm pb-20">
         {/* Chat Header */}
-        <div className="bg-blue-600 text-white px-4 py-3 border-b border-blue-700">
-          <h1 className="text-xl font-bold">💬 {groupName || '群組聊天'}</h1>
-          <p className="text-blue-100 text-sm">即時聊天室</p>
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900">
+            <img src="/icon/chat.svg" alt="聊天" className="w-6 h-6" style={{ display: 'block' }} />
+            {groupName || '群組聊天'}
+          </h1>
+          <p className="text-gray-600 text-sm">即時聊天室</p>
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 pb-20">
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-white pb-20">
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-gray-500">載入訊息中...</p>

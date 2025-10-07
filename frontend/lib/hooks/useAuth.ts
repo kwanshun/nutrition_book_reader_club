@@ -53,8 +53,7 @@ export const useAuth = () => {
         email: email.trim().toLowerCase(),
         password,
         options: {
-          // Temporarily disable email confirmation for development
-          emailRedirectTo: undefined,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         }
       });
       
