@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import DashboardHeader from '@/components/layout/DashboardHeader';
 import { useQuiz } from '@/lib/hooks/useQuiz';
 import { useCurrentDay } from '@/lib/hooks/useCurrentDay';
 import Link from 'next/link';
@@ -114,7 +113,6 @@ export default function QuizPage() {
   if (loading || todayDay === null || !quiz) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -128,7 +126,6 @@ export default function QuizPage() {
   if (error || !quiz) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600">載入測驗時發生錯誤</p>
@@ -163,7 +160,6 @@ export default function QuizPage() {
   if (!loading && quizData.day_number && quizData.day_number !== day) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600">測驗資料不匹配：期望第 {day} 天，但載入的是第 {quizData.day_number} 天</p>
@@ -179,7 +175,6 @@ export default function QuizPage() {
   if (showResults) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <div className="text-6xl mb-4">🎉</div>
@@ -215,7 +210,6 @@ export default function QuizPage() {
   if (questions.length === 0) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
             <p className="text-yellow-800">第 {day} 天還沒有測驗題目</p>
@@ -240,7 +234,6 @@ export default function QuizPage() {
   if (!currentQ) {
     return (
       <div>
-        <DashboardHeader period={21} />
         <main className="max-w-md mx-auto px-4 py-6">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
             <p className="text-yellow-800">無法載入測驗題目</p>
@@ -255,7 +248,6 @@ export default function QuizPage() {
 
   return (
     <div key={`quiz-page-${day}`}>
-      <DashboardHeader period={21} />
       <main className="max-w-md mx-auto px-4 py-6">
         <div className="mb-4">
           <label htmlFor="day-select" className="block text-sm font-medium text-gray-700 mb-1">

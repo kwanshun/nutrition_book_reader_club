@@ -10,7 +10,7 @@ export default function DashboardPage() {
     { href: '/quiz', icon: '/icon/quiz.svg', label: '測一測', gradient: 'from-orange-500 to-red-600', description: '知識小測驗' },
     { href: '/food', icon: '/icon/food.svg', label: '食物識別', gradient: 'from-yellow-500 to-amber-600', description: '拍照識別食物' },
     { href: '/records', icon: '/icon/calendar-summary.svg', label: '21天記錄', gradient: 'from-pink-500 to-rose-600', description: '學習進度總覽' },
-    { href: '/buddyshare', icon: '/icon/group-chat.svg', label: '同學分享', gradient: 'from-indigo-500 to-violet-600', description: '看看同學分享' }
+    { href: '/book', icon: '/book-cover.jpg', label: '書籍介紹', gradient: 'from-indigo-500 to-violet-600', description: '了解本書內容' }
   ];
 
   const sampleNews = [
@@ -34,38 +34,16 @@ export default function DashboardPage() {
       
       <main className="max-w-md mx-auto px-4 py-6">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4">
-            {/* Book Cover */}
-            <div className="flex-shrink-0 w-16 h-20 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-              <img 
-                src="/book-cover.jpg" 
-                alt="吃的營養 科學觀 - 書籍封面"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs font-medium">書籍封面</div>';
-                  }
-                }}
-              />
-            </div>
-
-            {/* Text Content */}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800 mb-1">
-                歡迎回來！
-              </h1>
-              <p className="text-base font-medium text-gray-700 mb-1">
-                第21期 - 營養人生讀書會
-              </p>
-              <p className="text-sm text-gray-600">
-                繼續你的營養學習之旅
-              </p>
-            </div>
-          </div>
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">
+            歡迎回來！
+          </h1>
+          <p className="text-sm font-medium text-gray-700 mb-1">
+            第21期 - 營養人生讀書會
+          </p>
+          <p className="text-sm text-gray-600">
+            繼續你的營養學習之旅
+          </p>
         </div>
 
         {/* Feature Cards Grid - Enhanced */}

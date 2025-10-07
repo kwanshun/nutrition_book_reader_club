@@ -26,6 +26,10 @@ export default function MenuPage() {
             <h2 className="text-lg font-bold text-gray-900 mb-4">用戶資訊</h2>
             <div className="space-y-2">
               <p className="text-gray-600">
+                <span className="font-medium">姓名：</span>
+                {user?.user_metadata?.display_name || user?.user_metadata?.full_name || '未設定'}
+              </p>
+              <p className="text-gray-600">
                 <span className="font-medium">電子郵件：</span>
                 {user?.email}
               </p>
@@ -49,26 +53,6 @@ export default function MenuPage() {
                   <div>
                     <p className="font-medium text-gray-900">個人資料</p>
                     <p className="text-sm text-gray-500">編輯個人資訊</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🔔</span>
-                  <div>
-                    <p className="font-medium text-gray-900">通知設定</p>
-                    <p className="text-sm text-gray-500">管理通知偏好</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">❓</span>
-                  <div>
-                    <p className="font-medium text-gray-900">幫助與支援</p>
-                    <p className="text-sm text-gray-500">常見問題與聯繫</p>
                   </div>
                 </div>
               </button>

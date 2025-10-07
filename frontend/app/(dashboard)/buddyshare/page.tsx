@@ -130,17 +130,21 @@ export default function BuddySharePage() {
   if (loading) {
     return (
       <div className="max-w-md mx-auto bg-white min-h-screen">
-        <div className="bg-blue-600 text-white p-4">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
-            同學分享
-          </h1>
-          <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900">
+                <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
+                同學分享
+              </h1>
+              <p className="text-gray-600 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
+            </div>
+          </div>
         </div>
         
         <div className="p-4">
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto"></div>
             <p className="text-gray-500 mt-2">載入中...</p>
           </div>
         </div>
@@ -151,12 +155,16 @@ export default function BuddySharePage() {
   if (error) {
     return (
       <div className="max-w-md mx-auto bg-white min-h-screen">
-        <div className="bg-blue-600 text-white p-4">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
-            同學分享
-          </h1>
-          <p className="text-blue-100 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold flex items-center gap-2 text-gray-900">
+                <img src="/icon/group-chat.svg" alt="同學分享" className="w-6 h-6" style={{ display: 'block' }} />
+                同學分享
+              </h1>
+              <p className="text-gray-600 text-sm mt-1">看看夥伴們的分享，一起交流學習心得</p>
+            </div>
+          </div>
         </div>
         
         <div className="p-4">
