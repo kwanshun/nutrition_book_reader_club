@@ -100,14 +100,6 @@ export default function TodayContentPage() {
               <span>→</span>
             </button>
           </div>
-          
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentDay / 21) * 100}%` }}
-            ></div>
-          </div>
         </div>
 
         {/* Content Card */}

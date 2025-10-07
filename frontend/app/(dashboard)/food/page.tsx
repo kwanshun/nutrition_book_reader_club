@@ -26,10 +26,10 @@ export default function FoodPage() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-white">
       <DashboardHeader period={21} />
       <main className="max-w-md mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">📸 食物辨識 (正在更新)</h1>
           <p className="text-gray-600 text-sm mb-6">
             拍攝或上傳食物照片，AI 將自動識別食物並估算份量
@@ -47,12 +47,12 @@ export default function FoodPage() {
         </div>
 
         {/* Info Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <div className="flex items-start space-x-3">
-            <div className="text-blue-600 text-xl">💡</div>
+            <div className="text-gray-600 text-xl">💡</div>
             <div className="flex-1">
-              <h4 className="text-blue-800 font-semibold mb-1">使用提示</h4>
-              <ul className="list-disc list-inside text-blue-700 text-sm space-y-1">
+              <h4 className="text-gray-900 font-medium mb-1">使用提示</h4>
+              <ul className="list-disc list-inside text-gray-600 text-sm space-y-1">
                 <li>拍照時確保光線充足</li>
                 <li>盡量將食物置於畫面中央</li>
                 <li>可以識別多種食物</li>

@@ -72,15 +72,15 @@ export default function SharePage() {
   const lastModified = existingShare?.updated_at || existingShare?.created_at;
 
   return (
-    <div className="max-w-md mx-auto bg-white">
+    <div className="max-w-md mx-auto bg-white min-h-screen">
         {/* Header */}
-        <div className="bg-blue-600 text-white p-4">
+        <div className="bg-white border-b border-gray-200 p-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">第 {currentDay} 天 - 分享心得</h1>
+            <h1 className="text-xl font-bold text-gray-900">第 {currentDay} 天 - 分享心得</h1>
             <select
               value={currentDay}
               onChange={(e) => handleDayChange(parseInt(e.target.value))}
-              className="bg-blue-700 text-white border border-blue-500 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="bg-gray-100 text-gray-900 border border-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               {Array.from({ length: todayDay }, (_, i) => i + 1).map(day => (
                 <option key={day} value={day}>
@@ -89,15 +89,15 @@ export default function SharePage() {
               ))}
             </select>
           </div>
-          <p className="text-blue-100 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             {hasSharedForDay(currentDay) ? `✅ 第${currentDay}天已分享` : '分享你的學習心得'}
           </p>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-4">
           {/* Share Form */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h2 className="text-lg font-medium text-gray-900 mb-3">
               {hasSharedForDay(currentDay) ? `第${currentDay}天的心得` : '寫下你的心得'}
             </h2>
             
@@ -123,8 +123,8 @@ export default function SharePage() {
           )}
 
           {/* Other Users' Shares */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-3">
               第 {currentDay} 天的分享
             </h3>
             

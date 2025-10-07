@@ -508,6 +508,73 @@ group_id = group_members.data[0]['group_id']  # Use first group or let user choo
 - `chat_messages.group_id` - **NOT NULL** (references groups.id)
 - All content tables must have `group_id` foreign key constraint
 
+### **🔑 Critical: UserNameBar Configuration for Admin Management**
+
+**IMPORTANT:** The UserNameBar component is now configurable for future admin page upgrades. This allows administrators to easily change the program period and organization details without code modifications.
+
+#### **UserNameBar Component Configuration**
+The `UserNameBar` component accepts the following props for dynamic configuration:
+
+```typescript
+interface UserNameBarProps {
+  period?: number;           // Program period (default: 21)
+  organizationName?: string; // Organization name (default: '營養交流協會')
+  programName?: string;      // Program name (default: '營養人生讀書會')
+}
+```
+
+#### **Usage Examples for Admin Page**
+
+**Basic Period Changes:**
+```tsx
+// For period 22:
+<UserNameBar period={22} />
+
+// For period 23:
+<UserNameBar period={23} />
+
+// For period 24:
+<UserNameBar period={24} />
+```
+
+**Custom Organization and Program Names:**
+```tsx
+// Custom organization and program names:
+<UserNameBar 
+  period={22} 
+  organizationName="新營養協會" 
+  programName="健康生活讀書會" 
+/>
+
+// Another example:
+<UserNameBar 
+  period={23} 
+  organizationName="健康促進協會" 
+  programName="營養智慧讀書會" 
+/>
+```
+
+#### **Current Implementation**
+- **Location**: `frontend/components/layout/UserNameBar.tsx`
+- **Current Usage**: `frontend/app/(dashboard)/layout.tsx` with `<UserNameBar period={21} />`
+- **Display Format**: "第{period}期 - {programName}"
+- **Logo**: Book cover image with full display (no background, object-contain)
+
+#### **Future Admin Page Integration**
+This configuration system enables:
+- **Dynamic Period Management**: Admins can change program periods (21, 22, 23, etc.)
+- **Organization Branding**: Custom organization names for different groups
+- **Program Customization**: Different program names for various cohorts
+- **Real-time Updates**: Changes reflect immediately across all pages
+- **Backward Compatibility**: Default values ensure existing functionality
+
+#### **Database Integration Considerations**
+When implementing admin controls, consider:
+- **Configuration Storage**: Store period/organization settings in database
+- **User Experience**: Ensure changes don't disrupt active users
+- **Validation**: Period numbers should be positive integers
+- **Caching**: Cache configuration to avoid repeated database calls
+
 ### **🔑 Critical: User Display Name Requirements**
 
 **IMPORTANT:** User display names must be shown throughout the application, NOT user IDs. This is critical for user experience and privacy.

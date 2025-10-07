@@ -1,7 +1,7 @@
+'use client';
+
 import DashboardHeader from '@/components/layout/DashboardHeader';
 import FeatureCard from '@/components/ui/FeatureCard';
-import UserProfileCard from '@/components/ui/UserProfileCard';
-import NewsCard from '@/components/ui/NewsCard';
 
 export default function DashboardPage() {
   const features = [
@@ -34,13 +34,38 @@ export default function DashboardPage() {
       
       <main className="max-w-md mx-auto px-4 py-6">
         {/* Welcome Section */}
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            歡迎回來！
-          </h1>
-          <p className="text-gray-600 text-sm">
-            繼續你的營養學習之旅
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center gap-4">
+            {/* Book Cover */}
+            <div className="flex-shrink-0 w-16 h-20 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+              <img 
+                src="/book-cover.jpg" 
+                alt="吃的營養 科學觀 - 書籍封面"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs font-medium">書籍封面</div>';
+                  }
+                }}
+              />
+            </div>
+
+            {/* Text Content */}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-800 mb-1">
+                歡迎回來！
+              </h1>
+              <p className="text-base font-medium text-gray-700 mb-1">
+                第21期 - 營養人生讀書會
+              </p>
+              <p className="text-sm text-gray-600">
+                繼續你的營養學習之旅
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Feature Cards Grid - Enhanced */}
