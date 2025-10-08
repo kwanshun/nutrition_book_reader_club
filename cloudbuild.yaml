@@ -41,11 +41,14 @@ steps:
       - '--set-env-vars'
       - 'NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY},GEMINI_API_KEY=${_GEMINI_API_KEY}'
 
-# Substitutions for environment variables (set these in Cloud Build trigger)
+# Substitutions for environment variables
+# IMPORTANT: Set these values in the Cloud Build trigger settings in Google Cloud Console
+# Do NOT hardcode actual values here as this file is committed to Git
+# Go to: Cloud Build > Triggers > [Your Trigger] > Edit > Substitution variables
 substitutions:
-  _NEXT_PUBLIC_SUPABASE_URL: 'https://bnkgdcbwkcervkmpuhqm.supabase.co'
-  _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJua2dkY2J3a2NlcnZrbXB1aHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0Nzc2ODksImV4cCI6MjA3NTA1MzY4OX0.iwQmc37bIY8Fi8jiBsscLbbMeiLxUV6Pos_1kR7KVms'
-  _GEMINI_API_KEY: 'AIzaSyBlBtO5T1lvxL51821bRkAUC6Mxn7iePGk'
+  _NEXT_PUBLIC_SUPABASE_URL: 'YOUR_SUPABASE_URL'
+  _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY'
+  _GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY'
 
 # Timeout for the entire build (default is 10 minutes)
 timeout: '1200s'
