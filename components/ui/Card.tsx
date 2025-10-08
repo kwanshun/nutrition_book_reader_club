@@ -1,0 +1,17 @@
+// Reusable Card Component
+import React from 'react';
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export default function Card({ children, className = '' }: CardProps) {
+  return (
+    <div className={`bg-white rounded-lg shadow-sm p-4 border border-gray-200 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+

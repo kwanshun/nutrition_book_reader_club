@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>營養交流協會 - Nutrition Exchange Association</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .book-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .book-cover {
+            width: 80px;
+            height: 100px;
+            background: #3498db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .book-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .book-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .book-stats {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .program-info {
+            text-align: center;
+        }
+
+        .program-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .program-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .program-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            margin-top: -10px;
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 300px);
+            padding-bottom: 80px; /* Add space for bottom navigation */
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 10px;
+            background: #4285f4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .feature-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        /* Latest News Section */
+        .news-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .news-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .news-icon {
+            width: 40px;
+            height: 40px;
+            background: #e8f0fe;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4285f4;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 414px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            min-width: 60px;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            color: #4285f4;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Ensure bottom navigation is always visible */
+        body {
+            padding-bottom: 70px;
+        }
+
+        .container {
+            padding-bottom: 70px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .feature-grid {
+                gap: 12px;
+            }
+            
+            .feature-card {
+                padding: 15px 10px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fade in animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="app-title">營養交流協會</div>
+            
+            <div class="book-section">
+                <div class="book-cover">
+                    <div>吃的營養<br>科學觀</div>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">吃的營養科學觀</div>
+                    <div class="book-author">Adelle Davis</div>
+                    <div class="book-stats">全球銷售超過一千萬本<br>謝明哲 博士</div>
+                </div>
+            </div>
+            
+            <div class="program-info">
+                <div class="program-number">第21期</div>
+                <div class="program-name">營養交流協會</div>
+                <div class="program-subtitle">營養人生讀書會</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Feature Grid -->
+            <div class="feature-grid">
+                <div class="feature-card" onclick="handleFeatureClick('today')">
+                    <div class="feature-icon">
+                        <img src="today content.svg" alt="Today's Content" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">今天內容</div>
+                </div>
+                
+                <div class="feature-card" onclick="handleFeatureClick('sharing')">
+                    <div class="feature-icon">
+                        <img src="sharing.svg" alt="Share Experience" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">分享心得</div>
+                </div>
+                
+                <div class="feature-card" onclick="handleFeatureClick('quiz')">
+                    <div class="feature-icon">
+                        <img src="quiz.svg" alt="Take a Test" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">測一測</div>
+                </div>
+                
+                <div class="feature-card" onclick="handleFeatureClick('food')">
+                    <div class="feature-icon">
+                        <img src="food.svg" alt="What Have You Eaten" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">食過什麼</div>
+                </div>
+                
+                <div class="feature-card" onclick="handleFeatureClick('calendar')">
+                    <div class="feature-icon">
+                        <img src="calendar summary.svg" alt="21-Day Record" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">21天記錄</div>
+                </div>
+                
+                <div class="feature-card" onclick="handleFeatureClick('group')">
+                    <div class="feature-icon">
+                        <img src="group chat.svg" alt="Classmate Sharing" style="width: 24px; height: 24px; filter: brightness(0) invert(1);">
+                    </div>
+                    <div class="feature-title">同學分享</div>
+                </div>
+            </div>
+
+            <!-- Latest News Section -->
+            <div class="news-section">
+                <div class="section-title">最新消息</div>
+                
+                <div class="news-item">
+                    <div class="news-icon">
+                        <img src="Announcement.svg" alt="Announcement" style="width: 24px; height: 24px;">
+                    </div>
+                    <div class="news-content">
+                        <div class="news-text">歡迎參加第21期學習計劃 讓我們一起開始21天的營養學習之旅</div>
+                    </div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-icon">
+                        <img src="today content.svg" alt="Today's Content" style="width: 24px; height: 24px;">
+                    </div>
+                    <div class="news-content">
+                        <div class="news-text">每日提醒 記得完成今天的閱讀和測驗</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="handleNavClick('home')">
+                <div class="nav-icon">
+                    <img src="home.svg" alt="Home" style="width: 20px; height: 20px;">
+                </div>
+                <div class="nav-label">首頁</div>
+            </div>
+            
+            <div class="nav-item" onclick="handleNavClick('announcement')">
+                <div class="nav-icon">
+                    <img src="Announcement.svg" alt="Announcements" style="width: 20px; height: 20px;">
+                </div>
+                <div class="nav-label">公告</div>
+            </div>
+            
+            <div class="nav-item" onclick="handleNavClick('community')">
+                <div class="nav-icon">
+                    <img src="group chat.svg" alt="Community" style="width: 20px; height: 20px;">
+                </div>
+                <div class="nav-label">社群</div>
+            </div>
+            
+            <div class="nav-item" onclick="handleNavClick('more')">
+                <div class="nav-icon">⋯</div>
+                <div class="nav-label">更多</div>
+            </div>
+            
+            <div class="nav-item" onclick="handleNavClick('menu')">
+                <div class="nav-icon">☰</div>
+                <div class="nav-label">選單</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Feature click handlers
+        function handleFeatureClick(feature) {
+            console.log(`Feature clicked: ${feature}`);
+            
+            // Add visual feedback
+            event.currentTarget.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                event.currentTarget.style.transform = '';
+            }, 150);
+            
+            // Show loading state
+            const icon = event.currentTarget.querySelector('.feature-icon');
+            const originalContent = icon.innerHTML;
+            icon.innerHTML = '<div class="loading"></div>';
+            
+            setTimeout(() => {
+                icon.innerHTML = originalContent;
+                alert(`功能: ${getFeatureName(feature)}`);
+            }, 1000);
+        }
+
+        // Navigation click handlers
+        function handleNavClick(nav) {
+            console.log(`Navigation clicked: ${nav}`);
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.currentTarget.classList.add('active');
+            
+            // Add visual feedback
+            event.currentTarget.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                event.currentTarget.style.transform = '';
+            }, 150);
+            
+            alert(`導航: ${getNavName(nav)}`);
+        }
+
+        // Helper functions
+        function getFeatureName(feature) {
+            const names = {
+                'today': '今天內容',
+                'sharing': '分享心得',
+                'quiz': '測一測',
+                'food': '食過什麼',
+                'calendar': '21天記錄',
+                'group': '同學分享'
+            };
+            return names[feature] || feature;
+        }
+
+        function getNavName(nav) {
+            const names = {
+                'home': '首頁',
+                'announcement': '公告',
+                'community': '社群',
+                'more': '更多',
+                'menu': '選單'
+            };
+            return names[nav] || nav;
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('營養交流協會 App loaded successfully!');
+            
+            // Add some interactive animations
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+        });
+    </script>
+</body>
+</html>

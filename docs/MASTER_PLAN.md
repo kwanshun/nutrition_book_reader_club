@@ -925,6 +925,58 @@ After running the script, verify data creation:
 
 ---
 
+## 🚀 Deployment Guide
+
+This section outlines the process for deploying the application to Google Cloud Run and summarizes key lessons learned from the initial deployment.
+
+### **Google Cloud Run Deployment Process**
+
+The application can be deployed directly from the source code using the Google Cloud CLI.
+
+#### **Prerequisites:**
+1.  **Google Cloud CLI Installed:** Ensure `gcloud` is installed and authenticated.
+2.  **Correct Directory:** You **must** be in the project's root directory (`nutrition_book_reader_club`), which contains the `package.json` and `Procfile`.
+3.  **Environment Variables:** All required environment variables (Supabase URL/keys, Gemini API key) must be configured in the Cloud Run service's settings *before* deploying.
+
+#### **Final Deployment Command:**
+This command builds the source from the current directory (`.`) and deploys it.
+
+```bash
+gcloud run deploy nutrition-app \
+  --source . \
+  --platform managed \
+  --region asia-east1 \
+  --allow-unauthenticated \
+  --project=cknwebapp
+```
+*Note: This command assumes environment variables are already set in the Cloud Run console. If deploying for the first time, you may need to use the `--set-env-vars` flag.*
+
+### **Troubleshooting & Lessons Learned**
+
+The initial deployment process revealed several critical issues. Understanding these can prevent future deployment failures.
+
+#### **1. Dependency Conflicts with React 19**
+- **Problem:** The build failed during `npm install` because `framer-motion` and `lucide-react` had peer dependency conflicts with React 19.
+- **Solution:** Upgraded both packages to their latest versions, which support React 19.
+- **Lesson:** After major framework upgrades (like React), always check for and update incompatible dependencies. Run `npm install` locally to verify before deploying.
+
+#### **2. Incorrect Runtime Detection (Python vs. Node.js)**
+- **Problem:** The deployed application crashed with a Python Gunicorn error: `Failed to find attribute 'app' in 'main'`. This happened because Cloud Build incorrectly detected the project as a Python application.
+- **Solution:** A `Procfile` was created in the project's root directory with the line `web: npm start`. This explicitly tells the platform that this is a Node.js web application and what command to use to start it.
+- **Lesson:** If a cloud provider misidentifies your application's language, use a `Procfile` to explicitly define the process type and start command. The presence of other files can confuse auto-detection.
+
+#### **3. Missing Environment Variables (Build-time & Run-time)**
+- **Problem:** The build failed during `next build` because it required Supabase keys to pre-render pages. Separately, the deployed container crashed instantly at runtime because it was missing the Gemini API key.
+- **Solution:** Ensure all required environment variables are set in the Cloud Run service configuration. These variables are securely injected during both the build and run phases.
+- **Lesson:** Cloud Run has separate environments for building and running. Secrets must be available to both if the application needs them. The most secure way is to set them in the Cloud Run service console.
+
+#### **4. Debugging "Instance Could Not Start" Errors**
+- **Problem:** The logs repeatedly showed a generic "Service Unavailable" or "Instance could not start" error. These are *Request Logs* (the symptom), not *Application Logs* (the cause).
+- **Solution:** We used the "LOGS" tab in the Cloud Run console and filtered for logs with the name `.../stderr` to find the application's actual crash message.
+- **Lesson:** When an instance fails to start, always check the **Application Logs** (`stdout`/`stderr`) for the root cause. The generic request logs are not enough for debugging application code issues.
+
+---
+
 ## 🚀 Next Steps
 
 ### **Immediate (Testing Phase):**
