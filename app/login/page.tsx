@@ -69,6 +69,13 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
+          <div className="mb-6">
+            <img 
+              src="/book-cover.jpg" 
+              alt="營養書封面" 
+              className="h-48 w-auto mx-auto rounded-lg shadow-md"
+            />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">歡迎回來</h1>
           <p className="text-gray-600">登入您的帳戶</p>
         </div>
@@ -90,7 +97,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   placeholder="請輸入電子郵件"
                 />
               </div>
@@ -109,7 +116,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   placeholder="請輸入密碼"
                 />
               </div>
@@ -122,7 +129,7 @@ export default function LoginPage() {
                   <button
                     onClick={handleResendConfirmation}
                     disabled={resendLoading}
-                    className="block mt-2 text-blue-600 hover:text-blue-500 underline text-sm disabled:opacity-50"
+                    className="block mt-2 text-blue-600 hover:text-blue-700 underline text-sm font-medium disabled:opacity-50 transition-colors duration-200"
                   >
                     {resendLoading ? '發送中...' : '重新發送確認郵件'}
                   </button>
@@ -140,17 +147,17 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {loading ? '登入中...' : '登入'}
               </button>
             </div>
 
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3">
               <div>
                 <Link
                   href="/reset-password"
-                  className="text-blue-600 hover:text-blue-500 text-sm"
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-200"
                 >
                   忘記密碼？
                 </Link>
@@ -158,7 +165,7 @@ export default function LoginPage() {
               <div>
                 <Link
                   href="/register"
-                  className="text-blue-600 hover:text-blue-500 text-sm"
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-200"
                 >
                   還沒有帳號？立即註冊
                 </Link>

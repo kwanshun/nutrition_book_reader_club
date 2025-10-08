@@ -22,6 +22,18 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Mark messages as read when user is on chat page
+  useEffect(() => {
+    localStorage.setItem('chat_last_read_timestamp', new Date().toISOString());
+  }, []);
+
+  // Update last read timestamp when new messages arrive
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chat_last_read_timestamp', new Date().toISOString());
+    }
+  }, [messages]);
+
   // Get current user and their group
   useEffect(() => {
     const fetchUserAndGroup = async () => {

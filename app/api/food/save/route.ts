@@ -11,6 +11,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's group_id from group_members
+    const { data: membership, error: memberError } = await supabase
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single();
+
+    if (memberError || !membership) {
+      console.error('User not in any group:', memberError);
+      return NextResponse.json({ error: 'You must be in a group to save food logs' }, { status: 403 });
+    }
+
     // Get request body
     const { detected_foods, image_url, user_input } = await request.json();
 
@@ -18,12 +31,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid food data' }, { status: 400 });
     }
 
-    // Insert food log
+    // Insert food log with correct group_id
     const { data: logData, error: logError } = await supabase
       .from('food_logs')
       .insert({
         user_id: user.id,
-        group_id: null, // Allow null for now (same as text_shares)
+        group_id: membership.group_id, // Use actual group_id from group_members
         image_url: image_url || null,
         detected_foods: detected_foods,
         user_input: user_input || null,

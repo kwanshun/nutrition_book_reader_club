@@ -31,6 +31,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!group_id) {
+      return NextResponse.json(
+        { error: 'Group ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify user is a member of the group
+    const { data: membership, error: memberError } = await supabase
+      .from('group_members')
+      .select('group_id')
+      .eq('group_id', group_id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (memberError || !membership) {
+      return NextResponse.json(
+        { error: 'You are not a member of this group' },
+        { status: 403 }
+      );
+    }
+
     // Check if user has already shared for this day
     const { data: existingShare } = await supabase
       .from('text_shares')
@@ -63,7 +85,7 @@ export async function POST(request: NextRequest) {
         .from('text_shares')
         .insert({
           user_id: user.id,
-          group_id: group_id || null, // Allow NULL for testing without groups
+          group_id: group_id, // Use actual group_id (validated above)
           content: content.trim(),
           day_number: day_number
         })

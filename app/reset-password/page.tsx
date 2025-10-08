@@ -46,6 +46,13 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
+          <div className="mb-6">
+            <img 
+              src="/book-cover.jpg" 
+              alt="營養書封面" 
+              className="h-24 w-auto mx-auto rounded-lg shadow-md"
+            />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">營養書閱讀俱樂部</h1>
           <h2 className="text-2xl font-semibold text-gray-700">重設密碼</h2>
         </div>
@@ -66,7 +73,7 @@ export default function ResetPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 placeholder="user@example.com"
               />
             </div>
@@ -87,7 +94,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {loading ? '發送中...' : '發送重設連結'}
               </button>
@@ -100,7 +107,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-200"
               >
                 返回登入頁面
               </button>

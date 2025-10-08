@@ -101,6 +101,20 @@ export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: 
       setLoading(true);
       setError(null);
 
+      // Fetch user's group_id if not provided
+      let actualGroupId = targetGroupId || groupId;
+      
+      if (!actualGroupId) {
+        const { data: membership } = await supabase
+          .from('group_members')
+          .select('group_id')
+          .eq('user_id', userId)
+          .limit(1)
+          .single();
+        
+        actualGroupId = membership?.group_id;
+      }
+
       // Use API route instead of direct Supabase client
       const response = await fetch('/api/shares', {
         method: 'POST',
@@ -110,7 +124,7 @@ export function useTextShares(userId?: string, groupId?: string, fetchAllUsers: 
         body: JSON.stringify({
           content: content.trim(),
           day_number: dayNumber,
-          group_id: targetGroupId || groupId || userId
+          group_id: actualGroupId  // Use actual group_id, not userId!
         })
       });
 

@@ -31,27 +31,10 @@ export async function GET(request: NextRequest) {
     // Use the first group (in case user is in multiple groups)
     const groupId = groupMembers[0].group_id;
 
-    // Get all group members
-    const { data: allGroupMembers, error: membersError } = await supabase
-      .from('group_members')
-      .select('user_id')
-      .eq('group_id', groupId);
-
-    if (membersError || !allGroupMembers) {
-      return NextResponse.json({ error: 'Failed to fetch group members' }, { status: 500 });
-    }
-
-    const groupMemberIds = allGroupMembers.map(member => member.user_id);
-    
-    // Filter out the current user's ID to only show other users' content
-    const otherUserIds = groupMemberIds.filter(id => id !== user.id);
-    
     console.log('Debug - User ID:', user.id);
     console.log('Debug - Group ID:', groupId);
-    console.log('Debug - Group member IDs:', groupMemberIds);
-    console.log('Debug - Other user IDs (excluding current user):', otherUserIds);
 
-    // Fetch text shares from group members (fallback to user_id if group_id is null)
+    // Fetch text shares from group using group_id directly
     const { data: textShares, error: textSharesError } = await supabase
       .from('text_shares')
       .select(`
@@ -65,7 +48,8 @@ export async function GET(request: NextRequest) {
           display_name
         )
       `)
-      .in('user_id', otherUserIds)
+      .eq('group_id', groupId)  // Direct group_id filter (efficient!)
+      .neq('user_id', user.id)  // Exclude own shares
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -74,7 +58,7 @@ export async function GET(request: NextRequest) {
     }
     console.log('Debug - Text shares found (from other users):', textShares?.length || 0);
 
-    // Fetch food logs from group members (fallback to user_id if group_id is null)
+    // Fetch food logs from group using group_id directly
     const { data: foodLogs, error: foodLogsError } = await supabase
       .from('food_logs')
       .select(`
@@ -90,7 +74,8 @@ export async function GET(request: NextRequest) {
           display_name
         )
       `)
-      .in('user_id', otherUserIds)
+      .eq('group_id', groupId)  // Direct group_id filter (efficient!)
+      .neq('user_id', user.id)  // Exclude own logs
       .order('created_at', { ascending: false })
       .limit(20);
 
