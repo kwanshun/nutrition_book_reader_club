@@ -13,13 +13,11 @@ RUN npm ci
 # Copy all files
 COPY . .
 
-# Set environment variables for build (these are PUBLIC variables only)
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ARG GEMINI_API_KEY
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
-ENV GEMINI_API_KEY=$GEMINI_API_KEY
+# Create .env file with build-time environment variables
+# These will be overridden at runtime by Cloud Run
+RUN echo "NEXT_PUBLIC_SUPABASE_URL=https://bnkgdcbwkcervkmpuhqm.supabase.co" > .env.local && \
+    echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJua2dkY2J3a2NlcnZrbXB1aHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0Nzc2ODksImV4cCI6MjA3NTA1MzY4OX0.iwQmc37bIY8Fi8jiBsscLbbMeiLxUV6Pos_1kR7KVms" >> .env.local && \
+    echo "GEMINI_API_KEY=AIzaSyBlBtO5T1lvxL51821bRkAUC6Mxn7iePGk" >> .env.local
 
 # Build the Next.js app
 RUN npm run build
