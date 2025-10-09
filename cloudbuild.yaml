@@ -50,6 +50,10 @@ substitutions:
 # Timeout for the entire build (default is 10 minutes)
 timeout: '1200s'
 
+# Logging options to fix the service account error
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 # Images to be pushed to Container Registry
 images:
   - 'gcr.io/$PROJECT_ID/ckn-bookapp:$COMMIT_SHA'
