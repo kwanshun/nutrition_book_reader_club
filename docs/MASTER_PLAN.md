@@ -977,6 +977,222 @@ The initial deployment process revealed several critical issues. Understanding t
 
 ---
 
+## 🔐 Production Deployment: KEY Management Lessons Learned
+
+This section documents critical lessons learned about managing API keys and environment variables for production deployment on Google Cloud Run, based on extensive troubleshooting and deployment experience.
+
+### **🎯 Core Principle: Keys Should NOT Be in Docker Images**
+
+**CRITICAL RULE**: API keys and secrets should **NEVER** be baked into Docker images for production deployment. This is a fundamental security best practice.
+
+#### **Why Keys in Images Are Dangerous:**
+- ❌ **Security Risk**: Anyone with access to the image can extract keys
+- ❌ **Version Control**: Keys become part of the image history
+- ❌ **Rotation Difficulty**: Changing keys requires rebuilding entire image
+- ❌ **Compliance Issues**: Violates security standards for production systems
+
+### **🔧 Correct Production Architecture**
+
+#### **Multi-Stage Docker Build (Current Implementation)**
+```dockerfile
+# Build stage - Keys used ONLY during build
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG GEMINI_API_KEY
+
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
+
+# Build the Next.js app (requires keys for static generation)
+RUN npm run build
+
+# Production stage - Keys NOT included in final image
+FROM node:20-alpine AS runner
+# ... production setup without keys
+```
+
+**Key Points:**
+- ✅ Keys are passed as build arguments (`ARG`)
+- ✅ Keys are available during `npm run build` for static generation
+- ✅ Keys are **NOT** in the final production image
+- ✅ Keys are injected at runtime via Cloud Run environment variables
+
+### **🚀 Cloud Build Configuration**
+
+#### **Secure Key Management in `cloudbuild.yaml`**
+```yaml
+steps:
+  # Build with keys from substitution variables
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY}'
+      - '--build-arg'
+      - 'GEMINI_API_KEY=${_GEMINI_API_KEY}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/ckn-bookapp:$COMMIT_SHA'
+      - '.'
+
+  # Deploy with runtime environment variables
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'nutrition-book-reader-club'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/ckn-bookapp:$COMMIT_SHA'
+      - '--set-env-vars'
+      - 'NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY},GEMINI_API_KEY=${_GEMINI_API_KEY}'
+
+# Substitution variables - set in Cloud Build trigger
+substitutions:
+  _NEXT_PUBLIC_SUPABASE_URL: 'https://bnkgdcbwkcervkmpuhqm.supabase.co'
+  _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  _GEMINI_API_KEY: 'AIzaSyBlBtO5T1lvxL51821bRkAUC6Mxn7iePGk'
+```
+
+### **🔍 Key Lessons Learned**
+
+#### **Lesson 1: Next.js Static Generation Requires Build-Time Keys**
+**Problem**: Next.js `npm run build` fails without Supabase keys because it tries to pre-render pages that use Supabase client.
+
+**Solution**: Pass keys as build arguments during Docker build, but ensure they're not in the final image.
+
+**Code Pattern**:
+```dockerfile
+# ✅ CORRECT - Keys available during build only
+ARG NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+RUN npm run build  # Keys available here
+
+# Production stage - keys not included
+FROM node:20-alpine AS runner
+# No keys here - they're injected at runtime
+```
+
+#### **Lesson 2: Runtime vs Build-Time Environment Separation**
+**Problem**: Confusion about when keys are needed (build vs runtime).
+
+**Clarification**:
+- **Build-time**: Keys needed for `npm run build` (static generation)
+- **Runtime**: Keys needed for API calls and dynamic features
+- **Solution**: Use `ARG` for build-time, Cloud Run env vars for runtime
+
+#### **Lesson 3: Project-Specific Image Naming**
+**Problem**: Risk of using Docker images from wrong project.
+
+**Solution**: Always use `$PROJECT_ID` in image names:
+```yaml
+# ✅ CORRECT - Project-specific naming
+- 'gcr.io/$PROJECT_ID/ckn-bookapp:$COMMIT_SHA'
+
+# ❌ WRONG - Hardcoded project name
+- 'gcr.io/cknwebapp/ckn-bookapp:latest'
+```
+
+#### **Lesson 4: Cloud Build Trigger Configuration**
+**Problem**: Cloud Build ignoring `cloudbuild.yaml` and using wrong configuration.
+
+**Solution**: 
+1. Set trigger type to "Cloud Build configuration file (yaml or json)"
+2. Specify path: `/cloudbuild.yaml`
+3. Ensure substitution variables are set in trigger settings
+
+#### **Lesson 5: Service Account Permissions**
+**Problem**: Cloud Build failing due to insufficient permissions.
+
+**Solution**: Ensure Cloud Build service account has:
+- Cloud Run Admin
+- Container Registry Writer
+- Cloud Build Editor
+
+#### **Lesson 6: Logging Configuration**
+**Problem**: Cloud Build failing with service account logging errors.
+
+**Solution**: Add logging options to `cloudbuild.yaml`:
+```yaml
+options:
+  logging: CLOUD_LOGGING_ONLY
+```
+
+### **🛡️ Security Best Practices**
+
+#### **For Production Deployment:**
+
+1. **Use Google Secret Manager** (Recommended for sensitive keys):
+```yaml
+# Access secrets from Secret Manager
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      export GEMINI_API_KEY=$(gcloud secrets versions access latest --secret="gemini-api-key")
+      docker build --build-arg GEMINI_API_KEY=$GEMINI_API_KEY .
+```
+
+2. **Rotate Keys Regularly**:
+   - Set up key rotation schedule
+   - Update substitution variables in Cloud Build trigger
+   - No need to rebuild Docker images
+
+3. **Monitor Key Usage**:
+   - Enable Cloud Audit Logs
+   - Monitor API key usage in Google Cloud Console
+   - Set up alerts for unusual activity
+
+4. **Use Least Privilege**:
+   - Create service accounts with minimal required permissions
+   - Use different keys for different environments (dev/staging/prod)
+
+### **🔧 Troubleshooting Guide**
+
+#### **Common Issues & Solutions:**
+
+1. **"Supabase client initialization failed"**
+   - **Cause**: Missing environment variables at runtime
+   - **Solution**: Check Cloud Run environment variables are set
+
+2. **"Build failed during npm run build"**
+   - **Cause**: Missing build arguments
+   - **Solution**: Ensure `--build-arg` flags are passed to Docker build
+
+3. **"Image contains secrets"**
+   - **Cause**: Keys baked into final image
+   - **Solution**: Use multi-stage build with `ARG` only in build stage
+
+4. **"Cross-project image usage"**
+   - **Cause**: Hardcoded project names in image references
+   - **Solution**: Use `$PROJECT_ID` variable consistently
+
+### **📋 Production Checklist**
+
+Before deploying to production:
+
+- [ ] ✅ Multi-stage Dockerfile with `ARG` for build-time keys
+- [ ] ✅ Keys NOT in final production image
+- [ ] ✅ Cloud Build using substitution variables
+- [ ] ✅ Cloud Run environment variables set for runtime
+- [ ] ✅ Project-specific image naming with `$PROJECT_ID`
+- [ ] ✅ Cloud Build trigger configured correctly
+- [ ] ✅ Service account has required permissions
+- [ ] ✅ Logging configuration set to `CLOUD_LOGGING_ONLY`
+- [ ] ✅ Keys stored securely (Secret Manager recommended)
+- [ ] ✅ Key rotation plan established
+
+### **🎯 Summary**
+
+**The key lesson**: Production deployment requires a clear separation between build-time and runtime key management. Keys must be available during the build process for Next.js static generation, but should never be permanently embedded in the final Docker image. Instead, they should be injected at runtime through Cloud Run environment variables or Secret Manager.
+
+This architecture ensures security, maintainability, and compliance with production deployment best practices.
+
+---
+
 ## 🚀 Next Steps
 
 ### **Immediate (Testing Phase):**

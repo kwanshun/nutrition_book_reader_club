@@ -41,11 +41,12 @@ steps:
       - '--set-env-vars'
       - 'NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY},GEMINI_API_KEY=${_GEMINI_API_KEY}'
 
-# Substitution variables - set these in your Cloud Build trigger
-substitutions:
-  _NEXT_PUBLIC_SUPABASE_URL: 'https://bnkgdcbwkcervkmpuhqm.supabase.co'
-  _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJua2dkY2J3a2NlcnZrbXB1aHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0Nzc2ODksImV4cCI6MjA3NTA1MzY4OX0.iwQmc37bIY8Fi8jiBsscLbbMeiLxUV6Pos_1kR7KVms'
-  _GEMINI_API_KEY: 'AIzaSyBlBtO5T1lvxL51821bRkAUC6Mxn7iePGk'
+# Substitution variables - set these in your Cloud Build trigger settings
+# DO NOT put actual keys in this file for security reasons
+# substitutions:
+#   _NEXT_PUBLIC_SUPABASE_URL: 'set-in-trigger'
+#   _NEXT_PUBLIC_SUPABASE_ANON_KEY: 'set-in-trigger'
+#   _GEMINI_API_KEY: 'set-in-trigger'
 
 # Timeout for the entire build (default is 10 minutes)
 timeout: '1200s'
