@@ -30,7 +30,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'ckn-nutrition-app'
+      - 'nutrition-book-reader-club'
       - '--image'
       - 'gcr.io/$PROJECT_ID/ckn-bookapp:$COMMIT_SHA'
       - '--region'
